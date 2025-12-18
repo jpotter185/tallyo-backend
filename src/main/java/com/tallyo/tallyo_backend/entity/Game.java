@@ -46,6 +46,7 @@ public class Game {
     private String homeWinPercentage;
     private String awayWinPercentage;
     private Boolean finalGame;
+    private String week;
 
     public Game(int id, League league, Team homeTeam, Team awayTeam) {
         this.id = id;

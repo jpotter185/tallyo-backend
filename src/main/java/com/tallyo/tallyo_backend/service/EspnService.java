@@ -19,7 +19,6 @@ public class EspnService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 
     public EspnService(RestTemplate restTemplate) {
@@ -27,17 +26,50 @@ public class EspnService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public List<Game> fetchGames(String league){
-        String url =   "https://site.api.espn.com/apis/site/v2/sports/football/"
-                + league + "/scoreboard";
-        String jsonResponse = restTemplate.getForObject(url, String.class);
-        System.out.println(jsonResponse);
-        JsonNode data = objectMapper.readTree(jsonResponse);
+    private JsonNode fetchTeam(String league, int id){
+        String teamUrl = "http://sports.core.api.espn.com/v2/sports/football/leagues/" + league + "/seasons/2025/types/3/teams/" + id + "/record?lang=en&region=us" ;
+
+        String jsonTeamsResponse = restTemplate.getForObject(teamUrl, String.class);
+        return  objectMapper.readTree(jsonTeamsResponse);
+    }
+    private Team buildTeam(JsonNode teamJson, League league) {
+        if (teamJson == null) return null;
+        Team team = new Team();
+        int rank = teamJson.path("curatedRank").path("current").asInt(99);
+        team.setRanking(rank == 99 ? "" : "#" + rank + " ");
+        team.setId(teamJson.path("id").asInt());
+
+        JsonNode additionalTeamData = fetchTeam(league.getValue(), team.getId());
+
+        team.setName(teamJson.path("team").path("displayName").asString());
+        team.setAbbreviation(teamJson.path("team").path("abbreviation").asString());
+        team.setLogo(teamJson.path("team").path("logo").asString(null));
+        team.setPrimaryColor(teamJson.path("team").path("color").asString(null));
+        team.setAlternateColor(teamJson.path("team").path("alternateColor").asString(null));
+        team.setLocation(teamJson.path("team").path("location").asString(null));
+        team.setRecord(getTeamRecord(teamJson.path("records")));
+
+        return team;
+    }
+
+    public List<Game> fetchGames(League league){
+        String gamesUrl =   "https://site.api.espn.com/apis/site/v2/sports/football/"
+                + league.getValue() + "/scoreboard";
+        String jsonGamesResponse = restTemplate.getForObject(gamesUrl, String.class);
+        JsonNode gamesData = objectMapper.readTree(jsonGamesResponse);
+        return processGames(gamesData, league);
+
+    }
+
+
+
+    private List<Game> processGames(JsonNode gamesData, League league){
         List<Game> games = new ArrayList<>();
-
-
-        JsonNode events = data.path("events");
-        if (events.isArray() && events.size() > 0) {
+        JsonNode events = gamesData.path("events");
+        System.out.println(gamesData.path("week").path("number"));
+        String week = gamesData.path("week").path("number").toString();
+        System.out.println(week);
+        if (events.isArray() && !events.isEmpty()) {
             for (JsonNode event : events) {
                 JsonNode competitions = event.path("competitions");
                 for (JsonNode competition : competitions) {
@@ -48,8 +80,8 @@ public class EspnService {
                     JsonNode awayNode = findCompetitor(competitors, "away");
                     JsonNode winnerNode = findWinner(competitors);
 
-                    Team homeTeam = buildTeam(homeNode);
-                    Team awayTeam = buildTeam(awayNode);
+                    Team homeTeam = buildTeam(homeNode, league);
+                    Team awayTeam = buildTeam(awayNode, league);
 
                     String gameStatus = competition.path("status").path("type").path("name").asString();
                     String homeScore = determineScore(homeNode.path("score").asString(""), gameStatus);
@@ -61,7 +93,7 @@ public class EspnService {
 
                     String headline = "";
                     JsonNode notes = competition.path("notes");
-                    if (notes.isArray() && notes.size() > 0) {
+                    if (notes.isArray() && !notes.isEmpty()) {
                         headline = notes.get(0).path("headline").asString("");
                     }
 
@@ -81,7 +113,7 @@ public class EspnService {
                         game.setIsoDate(competition.path("startDate").asString());
                     }
                     game.setId(competition.path("id").asInt());
-                    game.setLeague(League.valueOf(league.toUpperCase()));
+                    game.setLeague(league);
                     game.setHomeTeam(homeTeam);
                     game.setAwayTeam(awayTeam);
                     game.setStadiumName(competition.path("venue").path("fullName").asString(null));
@@ -105,6 +137,7 @@ public class EspnService {
                     game.setAwayTimeouts(awayTimeouts);
                     game.setHomeWinPercentage(homeWinPercentage);
                     game.setAwayWinPercentage(awayWinPercentage);
+                    game.setWeek(week);
 
                     games.add(game);
                 }
@@ -132,26 +165,10 @@ public class EspnService {
         return null;
     }
 
-    private Team buildTeam(JsonNode teamJson) {
-        if (teamJson == null) return null;
 
-        Team team = new Team();
-        int rank = teamJson.path("curatedRank").path("current").asInt(99);
-        team.setRanking(rank == 99 ? "" : "#" + rank + " ");
-        team.setId(teamJson.path("id").asInt());
-        team.setName(teamJson.path("team").path("displayName").asString());
-        team.setAbbreviation(teamJson.path("team").path("abbreviation").asString());
-        team.setLogo(teamJson.path("team").path("logo").asString(null));
-        team.setPrimaryColor(teamJson.path("team").path("color").asString(null));
-        team.setAlternateColor(teamJson.path("team").path("alternateColor").asString(null));
-        team.setLocation(teamJson.path("team").path("location").asString(null));
-        team.setRecord(getTeamRecord(teamJson.path("records")));
-
-        return team;
-    }
 
     private String getTeamRecord(JsonNode records) {
-        if (records != null && records.isArray() && records.size() > 0) {
+        if (records != null && records.isArray() && !records.isEmpty()) {
             for (JsonNode r : records) {
                 if (r.path("name").asString("").equalsIgnoreCase("overall")) {
                     return r.path("summary").asString("0-0");

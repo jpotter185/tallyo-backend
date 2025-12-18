@@ -6,7 +6,6 @@ import com.tallyo.tallyo_backend.service.GameServiceImpl;
 import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,16 +18,29 @@ public class GameController {
     }
 
     @GetMapping
-    public List<Game> getGames(@RequestParam String league){
-        return gameServiceImpl.getGames(league);
+    public List<Game> getGames(@RequestParam String league) throws BadRequestException {
+        boolean isCfb = league.toUpperCase().equals(League.CFB.toString());
+        boolean isNfl = league.toUpperCase().equals(League.NFL.toString());
+        if(!isNfl && !isCfb){
+            throw new BadRequestException("Invalid league");
+        }
+
+
+        return gameServiceImpl.getGames(isCfb ? League.CFB: League.NFL);
     }
 
     @PostMapping()
-    public String updatedGames(@RequestParam String league) throws BadRequestException {
-        if(!league.toUpperCase().equals(String.valueOf(League.CFB)) && !league.toUpperCase().equals(String.valueOf(League.NFL))){
+    public String updateGames(@RequestParam String league) throws BadRequestException {
+        boolean isCfb = league.toUpperCase().equals(League.CFB.toString());
+        boolean isNfl = league.toUpperCase().equals(League.NFL.toString());
+        if(!isNfl && !isCfb){
             throw new BadRequestException("Invalid league");
         }
-        return "Updated " + gameServiceImpl.updateGames(league) + " games";
+        return "Updated " +
+                gameServiceImpl.updateGames(isCfb ?
+                        League.CFB :
+                        League.NFL)
+                + " games";
     }
 
 }
