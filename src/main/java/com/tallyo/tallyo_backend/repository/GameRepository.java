@@ -3,6 +3,8 @@ package com.tallyo.tallyo_backend.repository;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,4 +12,13 @@ import java.util.List;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findByLeague(League league);
+
+    @Query("SELECT g FROM Game g WHERE g.league = :league " +
+            "AND (:year = 0 OR g.year = :year) " +
+            "AND (:seasonType = 0 OR g.seasonType = :seasonType) " +
+            "AND (:week = 0 OR g.week = :week)")
+    List<Game> getGames(@Param("league") League league,
+                        @Param("year") int year,
+                        @Param("seasonType") int seasonType,
+                        @Param("week") int week);
 }

@@ -4,8 +4,6 @@ import com.tallyo.tallyo_backend.enums.League;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
-
 @Entity
 @Table(name = "games")
 @Getter
@@ -24,6 +22,9 @@ public class Game {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "away_team_id")
     private Team awayTeam;
+    private int week;
+    private int seasonType;
+    private int year;
     private String stadiumName;
     private String location;
     private String isoDate;
@@ -40,13 +41,12 @@ public class Game {
     private String possessionTeamId;
     private Integer homeTimeouts;
     private Integer awayTimeouts;
-    private String winner;
+    private int winner;
     private String headline;
     private String gameStatus;
     private String homeWinPercentage;
     private String awayWinPercentage;
     private Boolean finalGame;
-    private String week;
 
     public Game(int id, League league, Team homeTeam, Team awayTeam) {
         this.id = id;

@@ -3,7 +3,6 @@ package com.tallyo.tallyo_backend.service;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.repository.GameRepository;
-import com.tallyo.tallyo_backend.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,20 +12,21 @@ public class GameServiceImpl implements GameService{
 
     private final GameRepository gameRepository;
     private final EspnService espnService;
-    public GameServiceImpl(GameRepository gameRepository, TeamRepository teamRepository, EspnService espnService){
+    public GameServiceImpl(GameRepository gameRepository, EspnService espnService){
         this.gameRepository = gameRepository;
         this.espnService = espnService;
     }
 
     @Override
-    public List<Game> getGames(League league) {
-        return gameRepository.findByLeague(league);
+    public List<Game> getGames(League league, int year, int seasonType, int week) {
+        return gameRepository.getGames(league, year, seasonType, week);
     }
 
     @Override
-    public int updateGames(League league) {
-        List<Game> games = espnService.fetchGames(league);
+    public List<Game> updateGames(League league, int year) {
+        List<Game> games = espnService.fetchGames(league, year);
         gameRepository.saveAll(games);
-        return games.size();
+        System.out.println("Got " + games.size() + " games from ESPN API");
+        return games;
     }
 }
