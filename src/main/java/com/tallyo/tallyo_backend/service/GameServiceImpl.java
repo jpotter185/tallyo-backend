@@ -3,6 +3,8 @@ package com.tallyo.tallyo_backend.service;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.repository.GameRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +20,8 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public List<Game> getGames(League league, int year, int seasonType, int week) {
-        return gameRepository.getGames(league, year, seasonType, week);
+    public Page<Game> getGames(League league, int year, int seasonType, int week, Pageable pageable) {
+        return gameRepository.getGames(league, year, seasonType, week, pageable);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class EspnService {
         List<Game> games = new ArrayList<>();
         if(espnScoreboardResponse != null){
             games = espnScoreboardResponse.getEvents().stream()
-                    .map(event -> espnGameMapper.toGame(event, League.NFL))
+                    .map(event -> espnGameMapper.toGame(event, league))
                     .filter(Objects::nonNull)
                     .toList();
 

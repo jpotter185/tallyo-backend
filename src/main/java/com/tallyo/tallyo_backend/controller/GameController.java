@@ -5,6 +5,10 @@ import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.model.GameResponse;
 import com.tallyo.tallyo_backend.service.GameServiceImpl;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +23,14 @@ public class GameController {
     }
 
     @GetMapping
-    public GameResponse getGames(
+    public Page<Game> getGames(
             @RequestParam String league,
             @RequestParam(defaultValue = "0") int year,
             @RequestParam(defaultValue = "0") int seasonType,
-            @RequestParam(defaultValue = "0") int week
+            @RequestParam(defaultValue = "0") int week,
+            @RequestParam(defaultValue = "100") int size,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
@@ -33,17 +40,19 @@ public class GameController {
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Invalid league");
         }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        List<Game> games =  gameServiceImpl.getGames(
+        Page<Game> games =  gameServiceImpl.getGames(
                 leagueEnum,
                 year,
                 seasonType,
-                week
+                week,
+                pageable
         );
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("getGames took " + duration + "ms, got " + games.size() + " games");
-        return new GameResponse(games, games.size());
+        System.out.println("getGames took " + duration + "ms");
+        return games;
     }
 
     @PostMapping()
