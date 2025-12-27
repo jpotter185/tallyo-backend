@@ -2,6 +2,7 @@ package com.tallyo.tallyo_backend.mapper;
 
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.entity.Team;
+import com.tallyo.tallyo_backend.entity.TeamKey;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.model.espn.Competition;
 import com.tallyo.tallyo_backend.model.espn.Competitor;
@@ -27,7 +28,7 @@ public class EspnGameMapper {
         for (Competitor competitor : competition.getCompetitors()) {
             if (competitor == null || competitor.getTeam() == null) continue;
 
-            Team mappedTeam = toTeam(competitor);
+            Team mappedTeam = toTeam(competitor, league);
 
             if ("home".equalsIgnoreCase(competitor.getHomeAway())) {
                 homeTeam = mappedTeam;
@@ -46,7 +47,9 @@ public class EspnGameMapper {
                 .id(Integer.parseInt(event.getId()))
                 .league(league)
                 .homeTeam(homeTeam)
+                .homeRecordAtTimeOfGame(homeTeam.getRecord())
                 .awayTeam(awayTeam)
+                .awayRecordAtTimeOfGame(awayTeam.getRecord())
                 .week(event.getWeek().getNumber())
                 .seasonType(event.getSeason().getType())
                 .year(event.getSeason().getYear())
@@ -57,9 +60,7 @@ public class EspnGameMapper {
                 )
                 .location(
                         competition.getVenue() != null && competition.getVenue().getAddress() != null
-                                ? competition.getVenue().getAddress().getCity() + ", " +
-                                competition.getVenue().getAddress().getState()
-                                : null
+                                ? competition.getVenue().getAddress().toString(): ""
                 )
                 .isoDate(competition.getStartDate())
                 .homeScore(getScore("home", competition.getCompetitors()))
@@ -67,13 +68,13 @@ public class EspnGameMapper {
                 .period(status != null ? String.valueOf(status.getPeriod()) : null)
                 .shortPeriod(
                         status != null && status.getType() != null
-                                ? status.getType().getShortDetail()
+                                ? status.getType().getDescription()
                                 : null
                 )
                 .channel(competition.getBroadcast())
                 .gameStatus(
                         status != null && status.getType() != null
-                                ? status.getType().getState()
+                                ? status.getType().getName()
                                 : null
                 )
                 .finalGame(
@@ -98,11 +99,11 @@ public class EspnGameMapper {
                 .orElse(0);
     }
 
-    private Team toTeam(Competitor competitor) {
+    private Team toTeam(Competitor competitor, League league) {
         com.tallyo.tallyo_backend.model.espn.Team espnTeam = competitor.getTeam();
-
+        TeamKey teamId = new TeamKey(espnTeam.getId(), league);
         return Team.builder()
-                .id(espnTeam.getId())
+                .teamKey(teamId)
                 .name(espnTeam.getDisplayName())
                 .abbreviation(espnTeam.getAbbreviation())
                 .logo(espnTeam.getLogo())

@@ -1,10 +1,15 @@
 package com.tallyo.tallyo_backend.controller;
 
+import com.tallyo.tallyo_backend.dto.CurrentContext;
+import com.tallyo.tallyo_backend.dto.PageResponse;
+import com.tallyo.tallyo_backend.dto.UpdateResponse;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
-import com.tallyo.tallyo_backend.model.GameResponse;
 import com.tallyo.tallyo_backend.service.GameServiceImpl;
+import com.tallyo.tallyo_backend.service.NflCalendarService;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,19 +22,61 @@ import java.util.List;
 @RequestMapping("/api/v1/games")
 public class GameController {
 
+    private static final Logger logger = LoggerFactory.getLogger(GameController.class);
+
     private final GameServiceImpl gameServiceImpl;
-    public GameController(GameServiceImpl gameServiceImpl){
+    private final NflCalendarService nflCalendarService;
+    public GameController(GameServiceImpl gameServiceImpl, NflCalendarService nflCalendarService){
         this.gameServiceImpl = gameServiceImpl;
+        this.nflCalendarService = nflCalendarService;
     }
 
     @GetMapping
-    public Page<Game> getGames(
+    public PageResponse<Game> getGames(
             @RequestParam String league,
-            @RequestParam(defaultValue = "0") int year,
-            @RequestParam(defaultValue = "0") int seasonType,
-            @RequestParam(defaultValue = "0") int week,
-            @RequestParam(defaultValue = "100") int size,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") Integer year,
+            @RequestParam(defaultValue = "0") Integer seasonType,
+            @RequestParam(defaultValue = "0") Integer week,
+            @RequestParam(defaultValue = "100") Integer size,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) throws BadRequestException {
+        logger.info("Started getGames with params: [year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
+                year,
+                seasonType,
+                week,
+                size,
+                page,
+                sortBy);
+
+        long startTime = System.currentTimeMillis();
+        League leagueEnum;
+        try {
+            leagueEnum = League.valueOf(league.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid league");
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+
+        Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, pageable);
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        logger.info("getGames took " + duration + "ms, got " + pages.getTotalElements() + " games");
+
+        return new PageResponse<>(pages);
+
+    }
+
+
+    @GetMapping("/current")
+    public PageResponse<Game> getCurrentWeekGames(
+            @RequestParam String league,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer seasonType,
+            @RequestParam(required = false) Integer week,
+            @RequestParam(defaultValue = "100") Integer size,
+            @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
 
@@ -42,22 +89,27 @@ public class GameController {
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        Page<Game> games =  gameServiceImpl.getGames(
+        CurrentContext context = nflCalendarService.getCurrentContext(leagueEnum);
+        int actualYear = nflCalendarService.getCurrentYear();
+        int actualSeasonType = context.seasonType();
+        int actualWeek = context.week();
+
+        Page<Game> pages =  gameServiceImpl.getGames(
                 leagueEnum,
-                year,
-                seasonType,
-                week,
+                actualYear,
+                actualSeasonType,
+                actualWeek,
                 pageable
         );
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("getGames took " + duration + "ms");
-        return games;
+        logger.info("getGames took " + duration + "ms, got " + pages.getTotalElements() + " games");
+        return new PageResponse<>(pages);
     }
 
     @PostMapping()
-    public GameResponse updateGames(@RequestParam String league,
-                                  @RequestParam(defaultValue = "0") int year) throws BadRequestException {
+    public UpdateResponse updateGames(@RequestParam String league,
+                                      @RequestParam(defaultValue = "0") int year) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
         League leagueEnum;
@@ -70,8 +122,8 @@ public class GameController {
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        System.out.println("updateGames took " + duration + "ms, got " + games.size() + " games");
-        return new GameResponse(games, games.size());
+        logger.info("updateGames took " + duration + "ms, got " + games.size() + " games");
+        return new UpdateResponse(games.size(), duration);
     }
 
 }

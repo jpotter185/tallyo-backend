@@ -1,12 +1,14 @@
 package com.tallyo.tallyo_backend.service;
 
+import com.tallyo.tallyo_backend.config.EspnApiProperties;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.mapper.EspnGameMapper;
 import com.tallyo.tallyo_backend.model.espn.EspnScoreboardResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import tools.jackson.databind.ObjectMapper;
 
 import java.time.Year;
 import java.util.ArrayList;
@@ -15,24 +17,29 @@ import java.util.Objects;
 
 @Service
 public class EspnService {
+    private static final Logger logger = LoggerFactory.getLogger(EspnService.class);
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+
+    private final EspnApiProperties espnApiProperties;
 
 
-    public EspnService(RestTemplate restTemplate) {
+    public EspnService(RestTemplate restTemplate, EspnApiProperties espnApiProperties) {
         this.restTemplate = restTemplate;
-        this.objectMapper = new ObjectMapper();
+        this.espnApiProperties = espnApiProperties;
     }
 
     public List<Game> fetchGames(League league, int year) {
         year = year == 0 ? Year.now().getValue() : year;
-        String gamesUrl = "https://site.api.espn.com/apis/site/v2/sports/football/"
-                + league.getValue() + "/scoreboard?limit=1000&dates=" + year + "0101-" + year + "1231";
-        System.out.println("Calling " + gamesUrl);
+        String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%d0101-%d1231",
+                espnApiProperties.getBaseUrl(),
+                league.getValue(),
+                espnApiProperties.getScoreboard().getLimit(),
+                year,
+                year);
+        logger.info("Calling " + gamesUrl);
         EspnScoreboardResponse espnScoreboardResponse = restTemplate.getForObject(gamesUrl, EspnScoreboardResponse.class);
-        System.out.println("Got response from ESPN");
-        System.out.println(espnScoreboardResponse);
+        logger.info("Got response from ESPN");
         EspnGameMapper espnGameMapper= new EspnGameMapper();
         List<Game> games = new ArrayList<>();
         if(espnScoreboardResponse != null){

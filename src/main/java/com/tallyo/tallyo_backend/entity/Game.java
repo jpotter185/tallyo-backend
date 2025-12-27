@@ -17,11 +17,20 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private League league;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "home_team_id")
+    @JoinColumns({
+            @JoinColumn(name = "home_team_id", referencedColumnName = "teamId"),
+            @JoinColumn(name = "home_team_league", referencedColumnName = "league")
+    })
     private Team homeTeam;
+    private String homeRecordAtTimeOfGame;
+
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "away_team_id")
+    @JoinColumns({
+            @JoinColumn(name = "away_team_id", referencedColumnName = "teamId"),
+            @JoinColumn(name = "away_team_league", referencedColumnName = "league")
+    })
     private Team awayTeam;
+    private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
     private int year;

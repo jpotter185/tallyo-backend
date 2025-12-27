@@ -1,5 +1,6 @@
 package com.tallyo.tallyo_backend.repository;
 
+import com.tallyo.tallyo_backend.dto.CurrentContext;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import org.springframework.data.domain.Page;
@@ -24,4 +25,12 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                         @Param("seasonType") int seasonType,
                         @Param("week") int week,
                         Pageable pageable);
+
+
+    @Query("SELECT new com.tallyo.tallyo_backend.dto.CurrentContext(g.year, g.seasonType, g.week) " +
+            "FROM Game g WHERE g.league = :league " +
+            "AND g.finalGame = true " +
+            "ORDER BY g.isoDate DESC, g.id DESC " +
+            "LIMIT 1")
+    CurrentContext findCurrentContext(@Param("league") League league);
 }

@@ -1,11 +1,9 @@
 package com.tallyo.tallyo_backend.entity;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
-
-import java.util.Map;
 
 @Entity
 @Table(name = "teams")
@@ -15,8 +13,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Team {
-    @Id
-    private int id;
+    @EmbeddedId
+    private TeamKey teamKey;
+
     private String name;
     private String abbreviation;
     private String logo;
