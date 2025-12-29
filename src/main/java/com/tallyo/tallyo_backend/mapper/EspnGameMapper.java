@@ -4,19 +4,20 @@ import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.entity.Team;
 import com.tallyo.tallyo_backend.entity.TeamKey;
 import com.tallyo.tallyo_backend.enums.League;
-import com.tallyo.tallyo_backend.model.espn.Competition;
-import com.tallyo.tallyo_backend.model.espn.Competitor;
-import com.tallyo.tallyo_backend.model.espn.Event;
 import com.tallyo.tallyo_backend.model.espn.Record;
-import com.tallyo.tallyo_backend.model.espn.Status;
+import com.tallyo.tallyo_backend.model.espn.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class EspnGameMapper {
+    private static final Logger logger = LoggerFactory.getLogger(EspnGameMapper.class);
 
     public Game toGame(Event event, League league) {
+        logger.info("starting toGame mapper");
         Competition competition = first(event.getCompetitions());
         if (competition == null) {
             return null;
@@ -42,7 +43,8 @@ public class EspnGameMapper {
         }
 
         Status status = competition.getStatus();
-
+        logger.info("HEREEEE");
+        logger.info("{}", competition.getNotes());
         return Game.builder()
                 .id(Integer.parseInt(event.getId()))
                 .league(league)
@@ -84,7 +86,11 @@ public class EspnGameMapper {
                 )
                 .espnLink(event.getLinks().get(0).getHref())
                 .winner(getWinningTeamId(competition))
+                .headline(competition.getNotes() != null && !competition.getNotes().isEmpty()
+                        ? competition.getNotes().get(0).getHeadline()
+                        : null)
                 .build();
+
     }
 
     private int getWinningTeamId(Competition competition) {

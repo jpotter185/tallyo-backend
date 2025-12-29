@@ -24,7 +24,7 @@ public class Competition {
     private boolean recent;
     private Venue venue;
     private List<Competitor> competitors;
-    private List<Object> notes;
+    private List<Note> notes;
     private Status status;
     private GameFormat format;
     private String startDate;
