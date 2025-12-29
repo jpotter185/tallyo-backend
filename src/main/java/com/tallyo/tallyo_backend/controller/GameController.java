@@ -5,8 +5,9 @@ import com.tallyo.tallyo_backend.dto.PageResponse;
 import com.tallyo.tallyo_backend.dto.UpdateResponse;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
+import com.tallyo.tallyo_backend.service.CalendarService;
 import com.tallyo.tallyo_backend.service.GameServiceImpl;
-import com.tallyo.tallyo_backend.service.NflCalendarService;
+import com.tallyo.tallyo_backend.service.CalendarServiceImpl;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +26,27 @@ public class GameController {
     private static final Logger logger = LoggerFactory.getLogger(GameController.class);
 
     private final GameServiceImpl gameServiceImpl;
-    private final NflCalendarService nflCalendarService;
-    public GameController(GameServiceImpl gameServiceImpl, NflCalendarService nflCalendarService){
+    private final CalendarService calendarService;
+    public GameController(GameServiceImpl gameServiceImpl, CalendarServiceImpl calendarService){
         this.gameServiceImpl = gameServiceImpl;
-        this.nflCalendarService = nflCalendarService;
+        this.calendarService = calendarService;
+    }
+
+    private League getLeagueEnumFromString(String league) throws BadRequestException {
+        League leagueEnum;
+        try {
+            leagueEnum = League.valueOf(league.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid league");
+        }
+        return leagueEnum;
+    }
+
+    @GetMapping("/context")
+    public CurrentContext getCurrentContext(@RequestParam String league) throws BadRequestException {
+        League leagueEnum = getLeagueEnumFromString(league);
+        return calendarService.getCurrentContext(leagueEnum);
+
     }
 
     @GetMapping
@@ -50,12 +68,7 @@ public class GameController {
                 sortBy);
 
         long startTime = System.currentTimeMillis();
-        League leagueEnum;
-        try {
-            leagueEnum = League.valueOf(league.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid league");
-        }
+        League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
         Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, pageable);
@@ -81,16 +94,11 @@ public class GameController {
     ) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
-        League leagueEnum;
-        try {
-            leagueEnum = League.valueOf(league.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid league");
-        }
+        League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        CurrentContext context = nflCalendarService.getCurrentContext(leagueEnum);
-        int actualYear = nflCalendarService.getCurrentYear();
+        CurrentContext context = calendarService.getCurrentContext(leagueEnum);
+        int actualYear = calendarService.getCurrentYear();
         int actualSeasonType = context.seasonType();
         int actualWeek = context.week();
 
@@ -112,12 +120,8 @@ public class GameController {
                                       @RequestParam(defaultValue = "0") int year) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
-        League leagueEnum;
-        try {
-            leagueEnum = League.valueOf(league.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid league");
-        }
+
+        League leagueEnum = getLeagueEnumFromString(league);
         List<Game> games =  gameServiceImpl.updateGames(leagueEnum, year);
 
         long endTime = System.currentTimeMillis();

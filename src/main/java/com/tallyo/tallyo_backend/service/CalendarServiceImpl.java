@@ -9,19 +9,22 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 @Service
-public class NflCalendarService implements CalendarService{
+public class CalendarServiceImpl implements CalendarService{
 
     private final GameRepository gameRepository;
 
-    public NflCalendarService(GameRepository gameRepository){
+    public CalendarServiceImpl(GameRepository gameRepository){
         this.gameRepository = gameRepository;
     }
+
+
     @Override
     public int getCurrentYear() {
         LocalDate now = LocalDate.now();
         return now.getMonthValue() >= 9 ? now.getYear() : now.getYear() - 1;
     }
 
+    @Override
     @Cacheable(value = "currentContext", key = "#league")
     public CurrentContext getCurrentContext(League league) {
         CurrentContext context = gameRepository.findCurrentContext(league);
