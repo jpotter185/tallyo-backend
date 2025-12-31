@@ -83,10 +83,11 @@ public class EspnGameMapper {
                 .headline(competition.getNotes() != null && !competition.getNotes().isEmpty()
                         ? competition.getNotes().get(0).getHeadline()
                         : null)
-                .possessionTeamId(competition.getSituation().getPossession())
-                .homeTimeouts(competition.getSituation().getHomeTimeouts())
-                .awayTimeouts(competition.getSituation().getAwayTimeouts())
-                .lastPlay(competition.getSituation().getLastPlay().getText())
+                .possessionTeamId(competition.getSituation() != null ? competition.getSituation().getPossession(): "")
+                .homeTimeouts(competition.getSituation() != null ? competition.getSituation().getHomeTimeouts(): 0)
+                .awayTimeouts(competition.getSituation() != null ? competition.getSituation().getAwayTimeouts(): 0)
+                .lastPlay(competition.getSituation() != null && competition.getSituation().getLastPlay() != null ?
+                    competition.getSituation().getLastPlay().getText(): "")
                 .build();
 
     }
