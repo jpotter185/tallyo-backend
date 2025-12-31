@@ -88,7 +88,9 @@ public class EspnGameMapper {
                 .awayTimeouts(competition.getSituation() != null ? competition.getSituation().getAwayTimeouts(): 0)
                 .lastPlay(competition.getSituation() != null && competition.getSituation().getLastPlay() != null ?
                     competition.getSituation().getLastPlay().getText(): "")
-                .down(competition.getSituation() != null && competition.getSituation().getDownDistanceText() != null ?
+                .down(competition.getSituation() != null && competition.getSituation().getShortDownDistanceText() != null ?
+                        competition.getSituation().getShortDownDistanceText(): "")
+                .currentDownAndDistance(competition.getSituation() != null && competition.getSituation().getDownDistanceText() != null ?
                         competition.getSituation().getDownDistanceText(): "")
                 .ballLocation(competition.getSituation() != null && competition.getSituation().getPossessionText() != null ?
                         competition.getSituation().getPossessionText(): "")
