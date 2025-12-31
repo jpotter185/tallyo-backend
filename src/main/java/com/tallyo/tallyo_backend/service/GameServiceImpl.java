@@ -40,6 +40,7 @@ public class GameServiceImpl implements GameService{
     }
     @Scheduled(fixedRate = 60000)
     public void updateGamesForToday(){
+        logger.info("Updating games for today");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String yesterday = LocalDate.now().minusDays(1).format(formatter);
         String today = LocalDate.now().format(formatter);
@@ -49,5 +50,6 @@ public class GameServiceImpl implements GameService{
         List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today);
         logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
         gameRepository.saveAll(cfbGames);
+        logger.info("Finished updating games");
     }
 }

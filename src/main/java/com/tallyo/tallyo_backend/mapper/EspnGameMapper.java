@@ -43,8 +43,6 @@ public class EspnGameMapper {
         }
 
         Status status = competition.getStatus();
-        logger.info("HEREEEE");
-        logger.info("{}", competition.getNotes());
         return Game.builder()
                 .id(Integer.parseInt(event.getId()))
                 .league(league)
