@@ -83,6 +83,10 @@ public class EspnGameMapper {
                 .headline(competition.getNotes() != null && !competition.getNotes().isEmpty()
                         ? competition.getNotes().get(0).getHeadline()
                         : null)
+                .possessionTeamId(competition.getSituation().getPossession())
+                .homeTimeouts(competition.getSituation().getHomeTimeouts())
+                .awayTimeouts(competition.getSituation().getAwayTimeouts())
+                .lastPlay(competition.getSituation().getLastPlay().getText())
                 .build();
 
     }

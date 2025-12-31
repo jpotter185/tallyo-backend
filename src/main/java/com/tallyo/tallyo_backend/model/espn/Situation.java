@@ -1,0 +1,17 @@
+package com.tallyo.tallyo_backend.model.espn;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class Situation {
+    private String possession;
+    private String downDistanceText;
+    private String shortDownDistanceText;
+    private int homeTimeouts;
+    private int awayTimeouts;
+    private LastPlay lastPlay;
+}

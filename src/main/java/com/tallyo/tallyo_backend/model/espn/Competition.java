@@ -25,6 +25,7 @@ public class Competition {
     private Venue venue;
     private List<Competitor> competitors;
     private List<Note> notes;
+    private Situation situation;
     private Status status;
     private GameFormat format;
     private String startDate;
