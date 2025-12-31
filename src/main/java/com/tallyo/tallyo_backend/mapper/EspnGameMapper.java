@@ -4,20 +4,16 @@ import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.entity.Team;
 import com.tallyo.tallyo_backend.entity.TeamKey;
 import com.tallyo.tallyo_backend.enums.League;
-import com.tallyo.tallyo_backend.model.espn.Record;
 import com.tallyo.tallyo_backend.model.espn.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tallyo.tallyo_backend.model.espn.Record;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class EspnGameMapper {
-    private static final Logger logger = LoggerFactory.getLogger(EspnGameMapper.class);
 
     public Game toGame(Event event, League league) {
-        logger.info("starting toGame mapper");
         Competition competition = first(event.getCompetitions());
         if (competition == null) {
             return null;

@@ -19,7 +19,13 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.league = :league " +
             "AND (:year = 0 OR g.year = :year) " +
             "AND (:seasonType = 0 OR g.seasonType = :seasonType) " +
-            "AND (:week = 0 OR g.week = :week)")
+            "AND (:week = 0 OR g.week = :week)" +
+            "ORDER BY CASE " +
+            "  WHEN g.gameStatus = 'STATUS_IN_PROGRESS' THEN 1 " +
+            "  WHEN g.gameStatus = 'STATUS_SCHEDULED' THEN 2 " +
+            "  WHEN g.gameStatus = 'STATUS_FINAL' THEN 3 " +
+            "  ELSE 4 " +
+            "END, g.isoDate")
     Page<Game> getGames(@Param("league") League league,
                         @Param("year") int year,
                         @Param("seasonType") int seasonType,
