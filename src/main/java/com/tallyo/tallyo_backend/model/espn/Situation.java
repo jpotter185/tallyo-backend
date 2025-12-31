@@ -11,6 +11,7 @@ public class Situation {
     private String possession;
     private String downDistanceText;
     private String shortDownDistanceText;
+    private String possessionText;
     private int homeTimeouts;
     private int awayTimeouts;
     private LastPlay lastPlay;
