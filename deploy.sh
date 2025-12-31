@@ -7,6 +7,10 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting deployment...${NC}"
+# Ensure SSH agent is running and key is loaded
+echo -e "${YELLOW}Loading SSH key...${NC}"
+eval "$(ssh-agent -s)" > /dev/null
+ssh-add ~/.ssh/id_ed25519 2>/dev/null || ssh-add ~/.ssh/id_rsa 2>/dev/null
 
 # Git pull
 echo -e "${YELLOW}Pulling latest changes from Git...${NC}"
