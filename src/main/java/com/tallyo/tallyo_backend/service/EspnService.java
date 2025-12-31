@@ -23,10 +23,32 @@ public class EspnService {
 
     private final EspnApiProperties espnApiProperties;
 
+    EspnGameMapper espnGameMapper= new EspnGameMapper();
+
 
     public EspnService(RestTemplate restTemplate, EspnApiProperties espnApiProperties) {
         this.restTemplate = restTemplate;
         this.espnApiProperties = espnApiProperties;
+    }
+
+    public List<Game> fetchGames(League league, String startDate, String endDate){
+        String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%s-%s",
+                espnApiProperties.getBaseUrl(),
+                league.getValue(),
+                espnApiProperties.getScoreboard().getLimit(),
+                startDate,
+                endDate);
+        EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
+        List<Game> games = new ArrayList<>();
+        if(espnScoreboardResponse != null){
+            games = espnScoreboardResponse.getEvents().stream()
+                    .map(event -> espnGameMapper.toGame(event, league))
+                    .filter(Objects::nonNull)
+                    .toList();
+
+        }
+        return games;
+
     }
 
     public List<Game> fetchGames(League league, int year) {
@@ -37,10 +59,8 @@ public class EspnService {
                 espnApiProperties.getScoreboard().getLimit(),
                 year,
                 year);
-        logger.info("Calling " + gamesUrl);
-        EspnScoreboardResponse espnScoreboardResponse = restTemplate.getForObject(gamesUrl, EspnScoreboardResponse.class);
+        EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
         logger.info("Got response from ESPN");
-        EspnGameMapper espnGameMapper= new EspnGameMapper();
         List<Game> games = new ArrayList<>();
         if(espnScoreboardResponse != null){
             games = espnScoreboardResponse.getEvents().stream()
@@ -50,6 +70,11 @@ public class EspnService {
 
         }
         return games;
+    }
+
+    private EspnScoreboardResponse fetchGamesForUrl(String url){
+        logger.info("Calling {}", url);
+        return restTemplate.getForObject(url, EspnScoreboardResponse.class);
     }
 }
 

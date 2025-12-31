@@ -7,8 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -34,5 +37,17 @@ public class GameServiceImpl implements GameService{
         gameRepository.saveAll(games);
         logger.info("Got " + games.size() + " games from ESPN API");
         return games;
+    }
+    @Scheduled(fixedRate = 60000)
+    public void updateGamesForToday(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String yesterday = LocalDate.now().minusDays(1).format(formatter);
+        String today = LocalDate.now().format(formatter);
+        List<Game> nflGames = espnService.fetchGames(League.NFL, yesterday, today);
+        logger.info("Got " + nflGames.size() + " nfl games from ESPN API");
+        gameRepository.saveAll(nflGames);
+        List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today);
+        logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
+        gameRepository.saveAll(cfbGames);
     }
 }

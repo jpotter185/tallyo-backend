@@ -81,7 +81,6 @@ public class GameController {
 
     }
 
-
     @GetMapping("/current")
     public PageResponse<Game> getCurrentWeekGames(
             @RequestParam String league,
@@ -101,7 +100,6 @@ public class GameController {
         int actualYear = calendarService.getCurrentYear();
         int actualSeasonType = context.seasonType();
         int actualWeek = context.week();
-
         Page<Game> pages =  gameServiceImpl.getGames(
                 leagueEnum,
                 actualYear,
@@ -115,7 +113,7 @@ public class GameController {
         return new PageResponse<>(pages);
     }
 
-    @PostMapping()
+    @PostMapping
     public UpdateResponse updateGames(@RequestParam String league,
                                       @RequestParam(defaultValue = "0") int year) throws BadRequestException {
 
