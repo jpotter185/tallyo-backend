@@ -70,7 +70,7 @@ public class EspnGameMapper {
                 .period(status != null ? String.valueOf(status.getPeriod()) : null)
                 .shortPeriod(
                         status != null && status.getType() != null
-                                ? status.getType().getDescription()
+                                ? status.getType().getShortDetail()
                                 : null
                 )
                 .channel(competition.getBroadcast())
