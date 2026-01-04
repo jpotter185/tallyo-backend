@@ -38,18 +38,23 @@ public class GameServiceImpl implements GameService{
         logger.info("Got " + games.size() + " games from ESPN API");
         return games;
     }
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 30000)
     public void updateGamesForToday(){
         logger.info("Updating games for today");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String yesterday = LocalDate.now().minusDays(1).format(formatter);
-        String today = LocalDate.now().format(formatter);
-        List<Game> nflGames = espnService.fetchGames(League.NFL, yesterday, today);
-        logger.info("Got " + nflGames.size() + " nfl games from ESPN API");
-        gameRepository.saveAll(nflGames);
-        List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today);
-        logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
-        gameRepository.saveAll(cfbGames);
-        logger.info("Finished updating games");
+        try{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            String yesterday = LocalDate.now().minusDays(1).format(formatter);
+            String today = LocalDate.now().format(formatter);
+            List<Game> nflGames = espnService.fetchGames(League.NFL, yesterday, today);
+            logger.info("Got " + nflGames.size() + " nfl games from ESPN API");
+            gameRepository.saveAll(nflGames);
+            List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today);
+            logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
+            gameRepository.saveAll(cfbGames);
+            logger.info("Finished updating games");
+        }catch(Exception e){
+            logger.error("Error updating games:");
+            logger.error(e.getMessage());
+        }
     }
 }
