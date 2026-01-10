@@ -35,8 +35,10 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT new com.tallyo.tallyo_backend.dto.CurrentContext(g.year, g.seasonType, g.week) " +
             "FROM Game g WHERE g.league = :league " +
-            "AND g.finalGame = true " +
-            "ORDER BY g.isoDate DESC, g.id DESC " +
+            "AND (g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') OR g.finalGame = true) " +
+            "ORDER BY " +
+            "CASE WHEN g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME') THEN 0 ELSE 1 END, " +
+            "g.isoDate DESC, g.id DESC " +
             "LIMIT 1")
     CurrentContext findCurrentContext(@Param("league") League league);
 
@@ -44,7 +46,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "FROM games " +
             "WHERE iso_date::timestamp >= NOW() - INTERVAL '24 hours' " +
             "AND (" +
-            "  game_status IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME') " +
+            "  game_status IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') " +
             "  OR " +
             "  (game_status = 'STATUS_SCHEDULED' AND iso_date::timestamp <= NOW())" +
             ")", nativeQuery = true)
