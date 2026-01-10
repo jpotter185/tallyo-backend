@@ -3,6 +3,8 @@ package com.tallyo.tallyo_backend.service;
 import com.tallyo.tallyo_backend.dto.CurrentContext;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.repository.GameRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import java.time.LocalDate;
 public class CalendarServiceImpl implements CalendarService{
 
     private final GameRepository gameRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CalendarServiceImpl.class);
 
     public CalendarServiceImpl(GameRepository gameRepository){
         this.gameRepository = gameRepository;
@@ -27,7 +30,14 @@ public class CalendarServiceImpl implements CalendarService{
     @Override
     @Cacheable(value = "currentContext", key = "#league")
     public CurrentContext getCurrentContext(League league) {
+        logger.info("Getting current context for league:{}", league);
         CurrentContext context = gameRepository.findCurrentContext(league);
-        return context != null ? context : new CurrentContext(getCurrentYear(), 2, 1);
+        CurrentContext retContext = context != null ? context : new CurrentContext(getCurrentYear(), 2, 1);
+        logger.info("Got current context for league:{}, year:{}, seasonType:{}, week:{}",
+                league.getValue(),
+                retContext.year(),
+                retContext.seasonType(),
+                retContext.week());
+        return retContext;
     }
 }

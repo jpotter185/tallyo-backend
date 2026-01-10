@@ -28,6 +28,11 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public Page<Game> getGames(League league, int year, int seasonType, int week, Pageable pageable) {
+        logger.info("Getting games for league:{}, year:{}, seasonType:{}, week:{}",
+                league.getValue(),
+                year,
+                seasonType,
+                week);
         return gameRepository.getGames(league, year, seasonType, week, pageable);
     }
 
@@ -38,7 +43,7 @@ public class GameServiceImpl implements GameService{
         logger.info("Got " + games.size() + " games from ESPN API");
         return games;
     }
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 10000)
     public void updateGamesForToday(){
         logger.info("Updating games for today");
         try{
