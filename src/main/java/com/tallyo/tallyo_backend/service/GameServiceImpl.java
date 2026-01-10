@@ -47,6 +47,16 @@ public class GameServiceImpl implements GameService{
     public void updateGamesForToday(){
         logger.info("Updating games for today");
         try{
+            logger.info("Checking if we should update");
+            if(!gameRepository.shouldUpdate()){
+                logger.info("No games currently in progress");
+                return;
+            }
+            logger.info("we should update");
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+        try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             String yesterday = LocalDate.now().minusDays(1).format(formatter);
             String today = LocalDate.now().format(formatter);

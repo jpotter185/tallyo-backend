@@ -39,4 +39,14 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "ORDER BY g.isoDate DESC, g.id DESC " +
             "LIMIT 1")
     CurrentContext findCurrentContext(@Param("league") League league);
+
+    @Query(value = "SELECT COUNT(*) > 0 " +
+            "FROM games " +
+            "WHERE iso_date::timestamp >= NOW() - INTERVAL '24 hours' " +
+            "AND (" +
+            "  game_status IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME') " +
+            "  OR " +
+            "  (game_status = 'STATUS_SCHEDULED' AND iso_date::timestamp <= NOW())" +
+            ")", nativeQuery = true)
+    boolean shouldUpdate();
 }
