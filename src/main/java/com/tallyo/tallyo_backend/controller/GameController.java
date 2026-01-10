@@ -59,7 +59,8 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
-        logger.info("Started getGames with params: [year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
+        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
+                league,
                 year,
                 seasonType,
                 week,
@@ -91,6 +92,14 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
+        logger.info("Started getCurrentGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
+                league,
+                year,
+                seasonType,
+                week,
+                size,
+                page,
+                sortBy);
 
         long startTime = System.currentTimeMillis();
         League leagueEnum = getLeagueEnumFromString(league);
