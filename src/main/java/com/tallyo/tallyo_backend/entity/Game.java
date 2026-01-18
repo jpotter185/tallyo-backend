@@ -30,6 +30,8 @@ public class Game {
             @JoinColumn(name = "away_team_league", referencedColumnName = "league")
     })
     private Team awayTeam;
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private GameOdd gameOdd;
     private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
@@ -56,11 +58,4 @@ public class Game {
     private String homeWinPercentage;
     private String awayWinPercentage;
     private Boolean finalGame;
-
-    public Game(int id, League league, Team homeTeam, Team awayTeam) {
-        this.id = id;
-        this.league = league;
-        this.homeTeam = homeTeam;
-        this.awayTeam = awayTeam;
-    }
 }

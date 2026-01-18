@@ -31,5 +31,6 @@ public class Competition {
     private String startDate;
     private String broadcast;
     private List<Object> highlights;
+    private List<Odds> odds;
 }
 

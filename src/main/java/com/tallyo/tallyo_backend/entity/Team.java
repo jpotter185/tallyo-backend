@@ -15,7 +15,6 @@ import lombok.*;
 public class Team {
     @EmbeddedId
     private TeamKey teamKey;
-
     private String name;
     private String abbreviation;
     private String logo;

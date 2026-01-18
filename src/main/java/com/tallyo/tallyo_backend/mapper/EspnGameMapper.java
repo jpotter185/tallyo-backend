@@ -1,6 +1,7 @@
 package com.tallyo.tallyo_backend.mapper;
 
 import com.tallyo.tallyo_backend.entity.Game;
+import com.tallyo.tallyo_backend.entity.GameOdd;
 import com.tallyo.tallyo_backend.entity.Team;
 import com.tallyo.tallyo_backend.entity.TeamKey;
 import com.tallyo.tallyo_backend.enums.League;
@@ -38,11 +39,19 @@ public class EspnGameMapper {
             return null;
         }
 
+        GameOdd odds = null;
+        if(competition.getOdds() != null && !competition.getOdds().isEmpty()){
+            odds = new GameOdd();
+            odds.setId(Integer.parseInt(event.getId()));
+            odds.setSpreadText((competition.getOdds().get(0).getDetails()));
+        }
+
         Status status = competition.getStatus();
-        return Game.builder()
+        Game game =  Game.builder()
                 .id(Integer.parseInt(event.getId()))
                 .league(league)
                 .homeTeam(homeTeam)
+                .gameOdd(odds)
                 .homeRecordAtTimeOfGame(homeTeam.getRecord())
                 .awayTeam(awayTeam)
                 .awayRecordAtTimeOfGame(awayTeam.getRecord())
@@ -96,6 +105,10 @@ public class EspnGameMapper {
                         competition.getSituation().getPossessionText(): "")
                 .build();
 
+        if(odds != null){
+            odds.setGame(game);
+        }
+    return game;
     }
 
     private int getWinningTeamId(Competition competition) {
