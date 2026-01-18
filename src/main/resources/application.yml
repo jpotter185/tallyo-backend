@@ -15,3 +15,6 @@ espn:
     base-url: https://site.api.espn.com/apis/site/v2/sports/football
     scoreboard:
       limit: 1000
+
+api:
+  key: ${API_KEY}

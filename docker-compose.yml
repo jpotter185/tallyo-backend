@@ -27,6 +27,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO}
+      API_KEY: ${API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
