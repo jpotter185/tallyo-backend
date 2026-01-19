@@ -1,8 +1,17 @@
 package com.tallyo.tallyo_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tallyo.tallyo_backend.dto.StatObject;
+import com.tallyo.tallyo_backend.dto.StatResponse;
 import com.tallyo.tallyo_backend.enums.League;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "games")
@@ -32,6 +41,10 @@ public class Game {
     private Team awayTeam;
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private GameOdd gameOdd;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @MapKey(name = "key")
+    @JsonIgnore
+    private Map<GameStatKey, GameStat> stats = new HashMap<>();
     private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
@@ -58,4 +71,32 @@ public class Game {
     private String homeWinPercentage;
     private String awayWinPercentage;
     private Boolean finalGame;
+
+    public void addStats(List<GameStat> newStats) {
+        if (this.stats == null) {
+            this.stats = new HashMap<>();
+        }
+        if (newStats != null) {
+            newStats.forEach(stat -> {
+                this.stats.put(stat.getKey(), stat);
+                stat.setGame(this);
+            });
+        }
+    }
+
+    @JsonProperty("stats")
+    public StatResponse getStatsForJson() {
+        if (stats == null) return null;
+        List<StatObject> homeStats = new ArrayList<>();
+        List<StatObject> awayStats = new ArrayList<>();
+        for( Map.Entry<GameStatKey, GameStat> entry: this.getStats().entrySet()){
+            StatObject stat = new StatObject(entry.getKey().getStatType(), entry.getValue().getStatValue());
+            if(entry.getKey().getTeamId() == this.getHomeTeam().getTeamKey().getTeamId()){homeStats.add(stat);
+            }
+            else {
+                awayStats.add(stat);
+            }
+        }
+        return new StatResponse(homeStats, awayStats);
+    }
 }

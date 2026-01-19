@@ -124,12 +124,13 @@ public class GameController {
 
     @PostMapping
     public UpdateResponse updateGames(@RequestParam String league,
-                                      @RequestParam(defaultValue = "0") int year) throws BadRequestException {
+                                      @RequestParam(defaultValue = "0") int year,
+                                      @RequestParam(defaultValue = "false") boolean shouldFetchStats) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
 
         League leagueEnum = getLeagueEnumFromString(league);
-        List<Game> games =  gameServiceImpl.updateGames(leagueEnum, year);
+        List<Game> games =  gameServiceImpl.updateGames(leagueEnum, year, shouldFetchStats);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;

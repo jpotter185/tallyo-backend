@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface GameService {
     Page<Game> getGames(League league, int year, int seasonType, int week, Pageable pageable);
-    List<Game> updateGames(League league, int year);
+    List<Game> updateGames(League league, int year, boolean shouldFetchStats);
 }

@@ -2,9 +2,12 @@ package com.tallyo.tallyo_backend.service;
 
 import com.tallyo.tallyo_backend.config.EspnApiProperties;
 import com.tallyo.tallyo_backend.entity.Game;
+import com.tallyo.tallyo_backend.entity.GameStat;
 import com.tallyo.tallyo_backend.enums.League;
+import com.tallyo.tallyo_backend.mapper.EspnBoxScoreMapper;
 import com.tallyo.tallyo_backend.mapper.EspnGameMapper;
-import com.tallyo.tallyo_backend.model.espn.EspnScoreboardResponse;
+import com.tallyo.tallyo_backend.model.espn.box_score.EspnBoxscoreResponse;
+import com.tallyo.tallyo_backend.model.espn.scoreboard.EspnScoreboardResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class EspnService {
@@ -24,6 +28,7 @@ public class EspnService {
     private final EspnApiProperties espnApiProperties;
 
     EspnGameMapper espnGameMapper= new EspnGameMapper();
+    EspnBoxScoreMapper espnBoxScoreMapper = new EspnBoxScoreMapper();
 
 
     public EspnService(RestTemplate restTemplate, EspnApiProperties espnApiProperties) {
@@ -31,7 +36,7 @@ public class EspnService {
         this.espnApiProperties = espnApiProperties;
     }
 
-    public List<Game> fetchGames(League league, String startDate, String endDate){
+    public List<Game> fetchGames(League league, String startDate, String endDate, boolean shouldFetchStats){
         String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%s-%s",
                 espnApiProperties.getBaseUrl(),
                 league.getValue(),
@@ -45,13 +50,28 @@ public class EspnService {
                     .map(event -> espnGameMapper.toGame(event, league))
                     .filter(Objects::nonNull)
                     .toList();
-
+        }
+        if(shouldFetchStats){
+            games.forEach(game -> attachStatsToGame(game, league));
         }
         return games;
 
     }
 
-    public List<Game> fetchGames(League league, int year) {
+    private void attachStatsToGame(Game game, League league) {
+        try {
+            List<GameStat> stats = fetchStatsForGame(
+                    game.getId(),
+                    league
+            );
+            game.addStats(stats);
+        } catch (Exception e) {
+            logger.warn("Could not fetch stats for game {}: {}",
+                    game.getId(), e.getMessage());
+        }
+    }
+
+    public List<Game> fetchGames(League league, int year, boolean shouldFetchStats) {
         year = year == 0 ? Year.now().getValue() : year;
         String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%d0101-%d1231",
                 espnApiProperties.getBaseUrl(),
@@ -69,7 +89,38 @@ public class EspnService {
                     .toList();
 
         }
+        if(shouldFetchStats){
+            games.forEach(game -> attachStatsToGame(game, league));
+        }
         return games;
+    }
+
+    public List<GameStat> fetchStatsForGame(int gameId, League league){
+
+        String boxScoreUrl = String.format("%s/%s/summary?event=%s",
+                espnApiProperties.getBaseUrl(),
+                league.getValue(),
+                gameId);
+        List<GameStat> gameStats = new ArrayList<>();
+        try{
+            EspnBoxscoreResponse espnBoxscoreResponse = restTemplate.getForObject(boxScoreUrl, EspnBoxscoreResponse.class);
+
+            if(espnBoxscoreResponse != null &&
+                    espnBoxscoreResponse.getBoxscore() != null &&
+                    espnBoxscoreResponse.getBoxscore().getTeams() != null){
+
+                gameStats = espnBoxscoreResponse.getBoxscore().getTeams().stream()
+                        .flatMap(team -> espnBoxScoreMapper.toGameStat(team, gameId).stream())
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            }
+        }catch(Exception e){
+        logger.error(e.getMessage());
+        }
+
+
+
+        return gameStats;
     }
 
     private EspnScoreboardResponse fetchGamesForUrl(String url){

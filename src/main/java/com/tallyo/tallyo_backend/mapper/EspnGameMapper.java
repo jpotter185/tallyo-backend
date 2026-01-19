@@ -5,8 +5,8 @@ import com.tallyo.tallyo_backend.entity.GameOdd;
 import com.tallyo.tallyo_backend.entity.Team;
 import com.tallyo.tallyo_backend.entity.TeamKey;
 import com.tallyo.tallyo_backend.enums.League;
-import com.tallyo.tallyo_backend.model.espn.*;
-import com.tallyo.tallyo_backend.model.espn.Record;
+import com.tallyo.tallyo_backend.model.espn.scoreboard.*;
+import com.tallyo.tallyo_backend.model.espn.scoreboard.Record;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -124,7 +124,7 @@ public class EspnGameMapper {
     }
 
     private Team toTeam(Competitor competitor, League league) {
-        com.tallyo.tallyo_backend.model.espn.Team espnTeam = competitor.getTeam();
+        com.tallyo.tallyo_backend.model.espn.scoreboard.Team espnTeam = competitor.getTeam();
         TeamKey teamId = new TeamKey(espnTeam.getId(), league);
         return Team.builder()
                 .teamKey(teamId)
