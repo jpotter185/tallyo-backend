@@ -2,7 +2,7 @@ package com.tallyo.tallyo_backend.dto;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class StatResponse {
-    List<StatObject> homeStats;
-    List<StatObject> awayStats;
+    Map<String, String> homeStats;
+    Map<String, String> awayStats;
 }

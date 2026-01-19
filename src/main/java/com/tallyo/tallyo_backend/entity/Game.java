@@ -2,13 +2,11 @@ package com.tallyo.tallyo_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tallyo.tallyo_backend.dto.StatObject;
 import com.tallyo.tallyo_backend.dto.StatResponse;
 import com.tallyo.tallyo_backend.enums.League;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,14 +85,15 @@ public class Game {
     @JsonProperty("stats")
     public StatResponse getStatsForJson() {
         if (stats == null) return null;
-        List<StatObject> homeStats = new ArrayList<>();
-        List<StatObject> awayStats = new ArrayList<>();
+        Map<String,String> homeStats = new HashMap<>();
+        Map<String,String> awayStats = new HashMap<>();
         for( Map.Entry<GameStatKey, GameStat> entry: this.getStats().entrySet()){
-            StatObject stat = new StatObject(entry.getKey().getStatType(), entry.getValue().getStatValue());
-            if(entry.getKey().getTeamId() == this.getHomeTeam().getTeamKey().getTeamId()){homeStats.add(stat);
+            String statName = entry.getKey().getStatType();
+            String statValue = entry.getValue().getStatValue();
+            if(entry.getKey().getTeamId() == this.getHomeTeam().getTeamKey().getTeamId()){homeStats.put(statName, statValue);
             }
             else {
-                awayStats.add(stat);
+                awayStats.put(statName, statValue);
             }
         }
         return new StatResponse(homeStats, awayStats);
