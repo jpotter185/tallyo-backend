@@ -42,7 +42,7 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @MapKey(name = "key")
     @JsonIgnore
-    private Map<GameStatKey, GameStat> stats = new HashMap<>();
+    private Map<GameStatKey, GameStat> stats;
     private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
