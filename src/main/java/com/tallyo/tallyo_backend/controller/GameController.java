@@ -44,9 +44,13 @@ public class GameController {
 
     @GetMapping("/context")
     public CurrentContext getCurrentContext(@RequestParam String league) throws BadRequestException {
+        long startTime = System.currentTimeMillis();
+        logger.info("Getting current context for league:{}", league);
         League leagueEnum = getLeagueEnumFromString(league);
-        return calendarService.getCurrentContext(leagueEnum);
 
+        CurrentContext currentContext =  calendarService.getCurrentContext(leagueEnum);
+        logger.info("Got current context for league:{} in {} ms", league, System.currentTimeMillis() - startTime);
+        return currentContext;
     }
 
     @GetMapping
@@ -59,6 +63,7 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
+        long startTime = System.currentTimeMillis();
         logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
                 league,
                 year,
@@ -68,7 +73,6 @@ public class GameController {
                 page,
                 sortBy);
 
-        long startTime = System.currentTimeMillis();
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
@@ -76,7 +80,7 @@ public class GameController {
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        logger.info("getGames took " + duration + "ms, got " + pages.getTotalElements() + " games");
+        logger.info("getGames took {}ms, got {} games", duration, pages.getTotalElements());
 
         return new PageResponse<>(pages);
 
@@ -92,6 +96,7 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
+        long startTime = System.currentTimeMillis();
         logger.info("Started getCurrentGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
                 league,
                 year,
@@ -100,8 +105,6 @@ public class GameController {
                 size,
                 page,
                 sortBy);
-
-        long startTime = System.currentTimeMillis();
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
@@ -118,7 +121,7 @@ public class GameController {
         );
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        logger.info("getGames took " + duration + "ms, got " + pages.getTotalElements() + " games");
+        logger.info("getGames took {}ms, got {} games", duration, pages.getTotalElements());
         return new PageResponse<>(pages);
     }
 
@@ -128,13 +131,13 @@ public class GameController {
                                       @RequestParam(defaultValue = "false") boolean shouldFetchStats) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
-
+        logger.info("Updating games for league:{}, year:{}", league, year);
         League leagueEnum = getLeagueEnumFromString(league);
         List<Game> games =  gameServiceImpl.updateGames(leagueEnum, year, shouldFetchStats);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        logger.info("updateGames took " + duration + "ms, got " + games.size() + " games");
+        logger.info("updateGames took {}ms, got {} games", duration, games.size());
         return new UpdateResponse(games.size(), duration);
     }
 
