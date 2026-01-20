@@ -16,7 +16,7 @@ fi
 
 # Maven build
 echo -e "${YELLOW}Building with Maven...${NC}"
-./mvnw clean package -DskipTests
+./mvnw clean package
 
 # Check if build was successful
 if [ $? -ne 0 ]; then
