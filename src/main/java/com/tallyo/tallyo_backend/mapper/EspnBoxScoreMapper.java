@@ -10,10 +10,10 @@ import java.util.List;
 
 public class EspnBoxScoreMapper {
 
-    public List<GameStat> toGameStat(Team team, int gameId){
+    public List<GameStat> toGameStat(Team team, int gameId) {
         List<GameStat> gameStats = new ArrayList<>();
 
-        for(Statistic stat: team.getStatistics()){
+        for (Statistic stat : team.getStatistics()) {
             GameStatKey key = new GameStatKey(gameId, team.getTeam().getId(), stat.getName());
 
             GameStat gameStat = GameStat.builder()

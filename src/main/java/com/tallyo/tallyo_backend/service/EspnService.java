@@ -27,7 +27,7 @@ public class EspnService {
 
     private final EspnApiProperties espnApiProperties;
 
-    EspnGameMapper espnGameMapper= new EspnGameMapper();
+    EspnGameMapper espnGameMapper = new EspnGameMapper();
     EspnBoxScoreMapper espnBoxScoreMapper = new EspnBoxScoreMapper();
 
 
@@ -36,7 +36,7 @@ public class EspnService {
         this.espnApiProperties = espnApiProperties;
     }
 
-    public List<Game> fetchGames(League league, String startDate, String endDate, boolean shouldFetchStats){
+    public List<Game> fetchGames(League league, String startDate, String endDate, boolean shouldFetchStats) {
         String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%s-%s",
                 espnApiProperties.getBaseUrl(),
                 league.getValue(),
@@ -45,13 +45,13 @@ public class EspnService {
                 endDate);
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
         List<Game> games = new ArrayList<>();
-        if(espnScoreboardResponse != null){
+        if (espnScoreboardResponse != null) {
             games = espnScoreboardResponse.getEvents().stream()
                     .map(event -> espnGameMapper.toGame(event, league))
                     .filter(Objects::nonNull)
                     .toList();
         }
-        if(shouldFetchStats){
+        if (shouldFetchStats) {
             games.forEach(game -> attachStatsToGame(game, league));
         }
         return games;
@@ -82,48 +82,47 @@ public class EspnService {
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
         logger.info("Got response from ESPN");
         List<Game> games = new ArrayList<>();
-        if(espnScoreboardResponse != null){
+        if (espnScoreboardResponse != null) {
             games = espnScoreboardResponse.getEvents().stream()
                     .map(event -> espnGameMapper.toGame(event, league))
                     .filter(Objects::nonNull)
                     .toList();
 
         }
-        if(shouldFetchStats){
+        if (shouldFetchStats) {
             games.forEach(game -> attachStatsToGame(game, league));
         }
         return games;
     }
 
-    public List<GameStat> fetchStatsForGame(int gameId, League league){
+    public List<GameStat> fetchStatsForGame(int gameId, League league) {
 
         String boxScoreUrl = String.format("%s/%s/summary?event=%s",
                 espnApiProperties.getBaseUrl(),
                 league.getValue(),
                 gameId);
         List<GameStat> gameStats = new ArrayList<>();
-        try{
+        try {
             EspnBoxscoreResponse espnBoxscoreResponse = restTemplate.getForObject(boxScoreUrl, EspnBoxscoreResponse.class);
 
-            if(espnBoxscoreResponse != null &&
+            if (espnBoxscoreResponse != null &&
                     espnBoxscoreResponse.getBoxscore() != null &&
-                    espnBoxscoreResponse.getBoxscore().getTeams() != null){
+                    espnBoxscoreResponse.getBoxscore().getTeams() != null) {
 
                 gameStats = espnBoxscoreResponse.getBoxscore().getTeams().stream()
                         .flatMap(team -> espnBoxScoreMapper.toGameStat(team, gameId).stream())
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
             }
-        }catch(Exception e){
-        logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
-
 
 
         return gameStats;
     }
 
-    private EspnScoreboardResponse fetchGamesForUrl(String url){
+    private EspnScoreboardResponse fetchGamesForUrl(String url) {
         logger.info("Calling {}", url);
         return restTemplate.getForObject(url, EspnScoreboardResponse.class);
     }

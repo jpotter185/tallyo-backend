@@ -6,8 +6,8 @@ import com.tallyo.tallyo_backend.dto.UpdateResponse;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.service.CalendarService;
-import com.tallyo.tallyo_backend.service.GameServiceImpl;
 import com.tallyo.tallyo_backend.service.CalendarServiceImpl;
+import com.tallyo.tallyo_backend.service.GameServiceImpl;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,8 @@ public class GameController {
 
     private final GameServiceImpl gameServiceImpl;
     private final CalendarService calendarService;
-    public GameController(GameServiceImpl gameServiceImpl, CalendarServiceImpl calendarService){
+
+    public GameController(GameServiceImpl gameServiceImpl, CalendarServiceImpl calendarService) {
         this.gameServiceImpl = gameServiceImpl;
         this.calendarService = calendarService;
     }
@@ -48,7 +49,7 @@ public class GameController {
         logger.info("Getting current context for league:{}", league);
         League leagueEnum = getLeagueEnumFromString(league);
 
-        CurrentContext currentContext =  calendarService.getCurrentContext(leagueEnum);
+        CurrentContext currentContext = calendarService.getCurrentContext(leagueEnum);
         logger.info("Got current context for league:{} in {} ms", league, System.currentTimeMillis() - startTime);
         return currentContext;
     }
@@ -112,7 +113,7 @@ public class GameController {
         int actualYear = calendarService.getCurrentYear();
         int actualSeasonType = context.seasonType();
         int actualWeek = context.week();
-        Page<Game> pages =  gameServiceImpl.getGames(
+        Page<Game> pages = gameServiceImpl.getGames(
                 leagueEnum,
                 actualYear,
                 actualSeasonType,
@@ -133,7 +134,7 @@ public class GameController {
         long startTime = System.currentTimeMillis();
         logger.info("Updating games for league:{}, year:{}", league, year);
         League leagueEnum = getLeagueEnumFromString(league);
-        List<Game> games =  gameServiceImpl.updateGames(leagueEnum, year, shouldFetchStats);
+        List<Game> games = gameServiceImpl.updateGames(leagueEnum, year, shouldFetchStats);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;

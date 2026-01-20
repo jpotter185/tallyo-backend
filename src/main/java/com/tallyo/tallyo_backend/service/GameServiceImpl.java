@@ -15,13 +15,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class GameServiceImpl implements GameService{
+public class GameServiceImpl implements GameService {
 
     private static final Logger logger = LoggerFactory.getLogger(GameServiceImpl.class);
 
     private final GameRepository gameRepository;
     private final EspnService espnService;
-    public GameServiceImpl(GameRepository gameRepository, EspnService espnService){
+
+    public GameServiceImpl(GameRepository gameRepository, EspnService espnService) {
         this.gameRepository = gameRepository;
         this.espnService = espnService;
     }
@@ -43,20 +44,21 @@ public class GameServiceImpl implements GameService{
         logger.info("Got " + games.size() + " games from ESPN API");
         return games;
     }
+
     @Scheduled(fixedRate = 10000)
-    public void updateGamesForToday(){
+    public void updateGamesForToday() {
         logger.info("Updating games for today");
-        try{
+        try {
             logger.info("Checking if we should update");
-            if(!gameRepository.shouldUpdate()){
+            if (!gameRepository.shouldUpdate()) {
                 logger.info("No games currently in progress");
                 return;
             }
             logger.info("we should update");
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        try{
+        try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             String yesterday = LocalDate.now().minusDays(1).format(formatter);
             String today = LocalDate.now().format(formatter);
@@ -67,7 +69,7 @@ public class GameServiceImpl implements GameService{
             logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
             gameRepository.saveAll(cfbGames);
             logger.info("Finished updating games");
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.error("Error updating games:");
             logger.error(e.getMessage());
         }

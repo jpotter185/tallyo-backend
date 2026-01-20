@@ -19,5 +19,6 @@ public class CacheConfig {
 
     @Scheduled(fixedRate = 300000) // 300,000 ms = 5 minutes
     @CacheEvict(value = "currentContext", allEntries = true)
-    public void evictCurrentContextCache() {}
+    public void evictCurrentContextCache() {
+    }
 }

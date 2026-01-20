@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 @Service
-public class CalendarServiceImpl implements CalendarService{
+public class CalendarServiceImpl implements CalendarService {
 
     private final GameRepository gameRepository;
     private static final Logger logger = LoggerFactory.getLogger(CalendarServiceImpl.class);
 
-    public CalendarServiceImpl(GameRepository gameRepository){
+    public CalendarServiceImpl(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
 
