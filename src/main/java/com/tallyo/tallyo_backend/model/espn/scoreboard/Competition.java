@@ -19,7 +19,7 @@ public class Competition {
     private CompetitionType type;
     private boolean timeValid;
     private boolean neutralSite;
-    private boolean conferenceCompetition;
+    private Boolean conferenceCompetition;
     private boolean playByPlayAvailable;
     private boolean recent;
     private Venue venue;

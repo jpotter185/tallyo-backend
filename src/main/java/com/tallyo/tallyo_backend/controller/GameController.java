@@ -43,6 +43,11 @@ public class GameController {
         return leagueEnum;
     }
 
+    @GetMapping("/nhl-dates")
+    public List<String> getNhlDate() {
+        return calendarService.getNhlGameDates();
+    }
+
     @GetMapping("/context")
     public CurrentContext getCurrentContext(@RequestParam String league) throws BadRequestException {
         long startTime = System.currentTimeMillis();
@@ -62,14 +67,16 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer week,
             @RequestParam(defaultValue = "100") Integer size,
             @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "") String date,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
         long startTime = System.currentTimeMillis();
-        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
+        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, date:{}, size:{}, page:{},sortBy:{}",
                 league,
                 year,
                 seasonType,
                 week,
+                date,
                 size,
                 page,
                 sortBy);
@@ -77,7 +84,7 @@ public class GameController {
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, pageable);
+        Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, date, pageable);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
@@ -118,6 +125,7 @@ public class GameController {
                 actualYear,
                 actualSeasonType,
                 actualWeek,
+                "",
                 pageable
         );
         long endTime = System.currentTimeMillis();

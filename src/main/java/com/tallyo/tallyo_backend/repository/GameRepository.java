@@ -19,9 +19,10 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.league = :league " +
             "AND (:year = 0 OR g.year = :year) " +
             "AND (:seasonType = 0 OR g.seasonType = :seasonType) " +
-            "AND (:week = 0 OR g.week = :week)" +
+            "AND (:week = 0 OR g.week = :week) " +
+            "AND (:date IS NULL OR :date = '' OR CAST(g.isoDate AS date) = CAST(:date AS date)) " +
             "ORDER BY CASE " +
-            "  WHEN g.gameStatus = 'STATUS_IN_PROGRESS' OR  g.gameStatus = 'STATUS_END_PERIOD'  OR  g.gameStatus = 'STATUS_HALFTIME' THEN 1 " +
+            "  WHEN g.gameStatus = 'STATUS_IN_PROGRESS' OR g.gameStatus = 'STATUS_END_PERIOD' OR g.gameStatus = 'STATUS_HALFTIME' THEN 1 " +
             "  WHEN g.gameStatus = 'STATUS_SCHEDULED' THEN 2 " +
             "  WHEN g.gameStatus = 'STATUS_FINAL' THEN 3 " +
             "  ELSE 4 " +
@@ -30,10 +31,11 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                         @Param("year") int year,
                         @Param("seasonType") int seasonType,
                         @Param("week") int week,
+                        @Param("date") String date,
                         Pageable pageable);
 
 
-    @Query("SELECT new com.tallyo.tallyo_backend.dto.CurrentContext(g.year, g.seasonType, g.week) " +
+    @Query("SELECT new com.tallyo.tallyo_backend.dto.CurrentContext(g.year, g.seasonType, g.isoDate, g.week) " +
             "FROM Game g WHERE g.league = :league " +
             "AND (g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') OR g.finalGame = true) " +
             "ORDER BY " +
@@ -51,4 +53,10 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "  (game_status = 'STATUS_SCHEDULED' AND iso_date::timestamp <= NOW())" +
             ")", nativeQuery = true)
     boolean shouldUpdate();
+
+    @Query(value = "SELECT DISTINCT iso_date::DATE::TEXT " +
+            "FROM games " +
+            "WHERE league = 'NHL'",
+            nativeQuery = true)
+    List<String> getNhlGameDates();
 }

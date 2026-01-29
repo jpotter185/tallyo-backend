@@ -4,11 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum League {
-    NFL("nfl"),
-    CFB("college-football");
+    NFL(Sport.FOOTBALL, "nfl"),
+    CFB(Sport.FOOTBALL, "college-football"),
+    NHL(Sport.HOCKEY, "nhl");
     private final String value;
-    private League(String value){
-        this.value = value;
-    }
+    private final Sport sport;
 
+    private League(Sport sport, String value) {
+        this.value = value;
+        this.sport = sport;
+    }
 }

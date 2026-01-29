@@ -28,13 +28,13 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Page<Game> getGames(League league, int year, int seasonType, int week, Pageable pageable) {
+    public Page<Game> getGames(League league, int year, int seasonType, int week, String date, Pageable pageable) {
         logger.info("Getting games for league:{}, year:{}, seasonType:{}, week:{}",
                 league.getValue(),
                 year,
                 seasonType,
                 week);
-        return gameRepository.getGames(league, year, seasonType, week, pageable);
+        return gameRepository.getGames(league, year, seasonType, week, date.substring(0, 10), pageable);
     }
 
     @Override
@@ -68,6 +68,9 @@ public class GameServiceImpl implements GameService {
             List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today, true);
             logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
             gameRepository.saveAll(cfbGames);
+            List<Game> nhlGames = espnService.fetchGames(League.NHL, yesterday, today, true);
+            logger.info("Got " + nhlGames.size() + " nhl games from ESPN API");
+            gameRepository.saveAll(nhlGames);
             logger.info("Finished updating games");
         } catch (Exception e) {
             logger.error("Error updating games:");

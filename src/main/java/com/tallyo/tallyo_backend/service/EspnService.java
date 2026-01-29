@@ -37,8 +37,9 @@ public class EspnService {
     }
 
     public List<Game> fetchGames(League league, String startDate, String endDate, boolean shouldFetchStats) {
-        String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%s-%s",
+        String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%s-%s",
                 espnApiProperties.getBaseUrl(),
+                league.getSport().getValue(),
                 league.getValue(),
                 espnApiProperties.getScoreboard().getLimit(),
                 startDate,
@@ -73,8 +74,9 @@ public class EspnService {
 
     public List<Game> fetchGames(League league, int year, boolean shouldFetchStats) {
         year = year == 0 ? Year.now().getValue() : year;
-        String gamesUrl = String.format("%s/%s/scoreboard?limit=%d&dates=%d0101-%d1231",
+        String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%d0101-%d1231",
                 espnApiProperties.getBaseUrl(),
+                league.getSport().getValue(),
                 league.getValue(),
                 espnApiProperties.getScoreboard().getLimit(),
                 year,
@@ -97,8 +99,9 @@ public class EspnService {
 
     public List<GameStat> fetchStatsForGame(int gameId, League league) {
 
-        String boxScoreUrl = String.format("%s/%s/summary?event=%s",
+        String boxScoreUrl = String.format("%s/%s/%s/summary?event=%s",
                 espnApiProperties.getBaseUrl(),
+                league.getSport().getValue(),
                 league.getValue(),
                 gameId);
         List<GameStat> gameStats = new ArrayList<>();

@@ -10,6 +10,7 @@ import com.tallyo.tallyo_backend.model.espn.scoreboard.Record;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class EspnGameMapper {
@@ -47,7 +48,75 @@ public class EspnGameMapper {
         }
 
         Status status = competition.getStatus();
-        Game game = Game.builder().id(Integer.parseInt(event.getId())).league(league).homeTeam(homeTeam).gameOdd(odds).homeRecordAtTimeOfGame(homeTeam.getRecord()).awayTeam(awayTeam).awayRecordAtTimeOfGame(awayTeam.getRecord()).week(event.getWeek().getNumber()).seasonType(event.getSeason().getType()).year(event.getSeason().getYear()).stadiumName(competition.getVenue() != null ? competition.getVenue().getFullName() : null).location(competition.getVenue() != null && competition.getVenue().getAddress() != null ? competition.getVenue().getAddress().toString() : "").isoDate(competition.getStartDate()).homeScore(getScore("home", competition.getCompetitors())).awayScore(getScore("away", competition.getCompetitors())).period(status != null ? String.valueOf(status.getPeriod()) : null).shortPeriod(status != null && status.getType() != null ? status.getType().getShortDetail() : null).channel(competition.getBroadcast()).gameStatus(status != null && status.getType() != null ? status.getType().getName() : null).finalGame(status != null && status.getType() != null ? status.getType().isCompleted() : null).espnLink(event.getLinks().get(0).getHref()).winner(getWinningTeamId(competition)).headline(competition.getNotes() != null && !competition.getNotes().isEmpty() ? competition.getNotes().get(0).getHeadline() : null).possessionTeamId(competition.getSituation() != null ? competition.getSituation().getPossession() : "").homeTimeouts(competition.getSituation() != null ? competition.getSituation().getHomeTimeouts() : 0).awayTimeouts(competition.getSituation() != null ? competition.getSituation().getAwayTimeouts() : 0).lastPlay(competition.getSituation() != null && competition.getSituation().getLastPlay() != null ? competition.getSituation().getLastPlay().getText() : "").down(competition.getSituation() != null && competition.getSituation().getShortDownDistanceText() != null ? competition.getSituation().getShortDownDistanceText() : "").currentDownAndDistance(competition.getSituation() != null && competition.getSituation().getDownDistanceText() != null ? competition.getSituation().getDownDistanceText() : "").ballLocation(competition.getSituation() != null && competition.getSituation().getPossessionText() != null ? competition.getSituation().getPossessionText() : "").build();
+        Game game = Game.builder()
+                .id(Integer.parseInt(event.getId()))
+                .league(league)
+                .homeTeam(homeTeam)
+                .gameOdd(odds)
+                .homeRecordAtTimeOfGame(homeTeam.getRecord())
+                .awayTeam(awayTeam)
+                .awayRecordAtTimeOfGame(awayTeam.getRecord())
+                .week(Optional.ofNullable(event.getWeek())
+                        .map(Week::getNumber)
+                        .orElse(0))
+                .seasonType(event.getSeason().getType())
+                .year(event.getSeason().getYear())
+                .stadiumName(Optional.ofNullable(competition.getVenue())
+                        .map(Venue::getFullName)
+                        .orElse(null))
+                .location(Optional.ofNullable(competition.getVenue())
+                        .map(Venue::getAddress)
+                        .map(Address::toString)
+                        .orElse(""))
+                .isoDate(competition.getStartDate())
+                .homeScore(getScore("home", competition.getCompetitors()))
+                .awayScore(getScore("away", competition.getCompetitors()))
+                .period(Optional.ofNullable(status)
+                        .map(Status::getPeriod)
+                        .map(String::valueOf)
+                        .orElse(null))
+                .shortPeriod(Optional.ofNullable(status)
+                        .map(Status::getType)
+                        .map(StatusType::getShortDetail)
+                        .orElse(null))
+                .channel(competition.getBroadcast())
+                .gameStatus(Optional.ofNullable(status)
+                        .map(Status::getType)
+                        .map(StatusType::getName)
+                        .orElse(null))
+                .finalGame(Optional.ofNullable(status)
+                        .map(Status::getType)
+                        .map(StatusType::isCompleted)
+                        .orElse(null))
+                .espnLink(event.getLinks().get(0).getHref())
+                .winner(getWinningTeamId(competition))
+                .headline(Optional.ofNullable(competition.getNotes())
+                        .filter(notes -> !notes.isEmpty())
+                        .map(notes -> notes.get(0).getHeadline())
+                        .orElse(null))
+                .possessionTeamId(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getPossession)
+                        .orElse(""))
+                .homeTimeouts(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getHomeTimeouts)
+                        .orElse(0))
+                .awayTimeouts(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getAwayTimeouts)
+                        .orElse(0))
+                .lastPlay(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getLastPlay)
+                        .map(LastPlay::getText)
+                        .orElse(""))
+                .down(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getShortDownDistanceText)
+                        .orElse(""))
+                .currentDownAndDistance(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getDownDistanceText)
+                        .orElse(""))
+                .ballLocation(Optional.ofNullable(competition.getSituation())
+                        .map(Situation::getPossessionText)
+                        .orElse(""))
+                .build();
 
         if (odds != null) {
             odds.setGame(game);

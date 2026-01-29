@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class CalendarServiceImpl implements CalendarService {
@@ -32,12 +33,17 @@ public class CalendarServiceImpl implements CalendarService {
     public CurrentContext getCurrentContext(League league) {
         logger.info("Getting current context for league:{}", league);
         CurrentContext context = gameRepository.findCurrentContext(league);
-        CurrentContext retContext = context != null ? context : new CurrentContext(getCurrentYear(), 2, 1);
+        CurrentContext retContext = context != null ? context : new CurrentContext(getCurrentYear(), 2, LocalDate.now().toString(), 1);
         logger.info("Got current context for league:{}, year:{}, seasonType:{}, week:{}",
                 league.getValue(),
                 retContext.year(),
                 retContext.seasonType(),
                 retContext.week());
         return retContext;
+    }
+
+    @Override
+    public List<String> getNhlGameDates() {
+        return gameRepository.getNhlGameDates();
     }
 }
