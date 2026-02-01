@@ -33,19 +33,23 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Cacheable(value = "currentContext", key = "#league")
-    public CurrentContext getCurrentContext(League league) {
+    public CurrentContext getCurrentContext(League league, String timezone) {
         logger.info("Getting current context for league:{}", league);
 
         CurrentContext context = gameRepository.findCurrentContext(league);
+        LocalDate today = LocalDate.now(ZoneId.of("America/New_York"));
+        String formatted = today.toString();
 
         CurrentContext retContext = context != null ?
                 context :
-                new CurrentContext(getCurrentYear(), 2, Instant.now(), 1);
-        logger.info("Got current context for league:{}, year:{}, seasonType:{}, week:{}",
+                new CurrentContext(getCurrentYear(), 2, formatted, 1);
+        retContext.setDate(formatted);
+        logger.info("Got current context for league:{}, year:{}, seasonType:{}, week:{}, date:{}",
                 league.getValue(),
-                retContext.year(),
-                retContext.seasonType(),
-                retContext.week());
+                retContext.getYear(),
+                retContext.getSeasonType(),
+                retContext.getWeek(),
+                retContext.getDate());
         return retContext;
     }
 

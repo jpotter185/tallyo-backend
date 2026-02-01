@@ -50,12 +50,14 @@ public class GameController {
     }
 
     @GetMapping("/context")
-    public CurrentContext getCurrentContext(@RequestParam String league) throws BadRequestException {
+    public CurrentContext getCurrentContext(
+            @RequestParam String league,
+            @RequestParam(defaultValue = "America/New_York") String userTimeZone) throws BadRequestException {
         long startTime = System.currentTimeMillis();
         logger.info("Getting current context for league:{}", league);
         League leagueEnum = getLeagueEnumFromString(league);
 
-        CurrentContext currentContext = calendarService.getCurrentContext(leagueEnum);
+        CurrentContext currentContext = calendarService.getCurrentContext(leagueEnum, userTimeZone);
         logger.info("Got current context for league:{} in {} ms", league, System.currentTimeMillis() - startTime);
         return currentContext;
     }
@@ -103,6 +105,7 @@ public class GameController {
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer seasonType,
             @RequestParam(required = false) Integer week,
+            @RequestParam(defaultValue = "America/New_York") String userTimeZone,
             @RequestParam(defaultValue = "100") Integer size,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
@@ -119,17 +122,17 @@ public class GameController {
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        CurrentContext context = calendarService.getCurrentContext(leagueEnum);
+        CurrentContext context = calendarService.getCurrentContext(leagueEnum, userTimeZone);
         int actualYear = calendarService.getCurrentYear();
-        int actualSeasonType = context.seasonType();
-        int actualWeek = context.week();
+        int actualSeasonType = context.getSeasonType();
+        int actualWeek = context.getWeek();
         Page<Game> pages = gameServiceImpl.getGames(
                 leagueEnum,
                 actualYear,
                 actualSeasonType,
                 actualWeek,
-                String.valueOf(context.date()).substring(0, String.valueOf(context.date()).indexOf("T")),
-                "",
+                context.getDate(),
+                userTimeZone,
                 pageable
         );
         long endTime = System.currentTimeMillis();

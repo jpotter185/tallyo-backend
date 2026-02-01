@@ -6,7 +6,7 @@ import com.tallyo.tallyo_backend.enums.League;
 import java.util.List;
 
 public interface CalendarService {
-    CurrentContext getCurrentContext(League league);
+    CurrentContext getCurrentContext(League league, String timezone);
 
     int getCurrentYear();
 
