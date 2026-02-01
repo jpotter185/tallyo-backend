@@ -130,7 +130,7 @@ public class GameController {
                 leagueEnum,
                 actualYear,
                 actualSeasonType,
-                actualWeek,
+                leagueEnum.getValue().equals("nhl") ? 0 : context.getWeek(),
                 context.getDate(),
                 userTimeZone,
                 pageable
