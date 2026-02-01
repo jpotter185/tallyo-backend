@@ -41,7 +41,7 @@ public class GameServiceImpl implements GameService {
         LocalDate localDate = null;
         Instant utcStart = null;
         Instant utcEnd = null;
-        if (!date.isEmpty()) {
+        if (!date.isEmpty() && !timezone.isEmpty()) {
             localDate = LocalDate.parse(date);
             ZoneId userZone = ZoneId.of(timezone);
             ZonedDateTime startOfDay = localDate.atStartOfDay(userZone);
