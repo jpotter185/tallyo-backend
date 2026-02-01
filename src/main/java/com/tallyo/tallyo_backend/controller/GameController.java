@@ -125,10 +125,9 @@ public class GameController {
         CurrentContext context = calendarService.getCurrentContext(leagueEnum, userTimeZone);
         int actualYear = calendarService.getCurrentYear();
         int actualSeasonType = context.getSeasonType();
-        int actualWeek = context.getWeek();
         Page<Game> pages = gameServiceImpl.getGames(
                 leagueEnum,
-                actualYear,
+                leagueEnum.getValue().equals("nhl") ? 0 : actualYear,
                 actualSeasonType,
                 leagueEnum.getValue().equals("nhl") ? 0 : context.getWeek(),
                 context.getDate(),
