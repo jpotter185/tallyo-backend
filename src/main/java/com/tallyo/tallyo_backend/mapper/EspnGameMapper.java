@@ -157,6 +157,9 @@ public class EspnGameMapper {
     }
 
     private String getRecord(Competitor competitor) {
+        if (competitor.getRecords() == null) {
+            return null;
+        }
         return competitor.getRecords().stream().map(Record::getSummary).findFirst().orElse(null);
     }
 
