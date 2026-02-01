@@ -54,7 +54,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                     g.id DESC
                 LIMIT 1
             """, nativeQuery = true)
-    CurrentContext findCurrentContext(@Param("league") League league);
+    CurrentContext findCurrentContext(@Param("league") String league);
 
     @Query(value = "SELECT COUNT(*) > 0 " +
             "FROM games " +
