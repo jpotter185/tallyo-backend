@@ -44,7 +44,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                     g.season_type,
                     TO_CHAR(g.iso_date, 'YYYY-MM-DD'),
                     g.week
-                FROM game g
+                FROM games g
                 WHERE g.league = :league
                   AND (g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD')
                        OR g.final_game = true)
