@@ -38,13 +38,22 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                         Pageable pageable);
 
 
-    @Query("SELECT new com.tallyo.tallyo_backend.dto.CurrentContext(g.year, g.seasonType, g.isoDate, g.week) " +
-            "FROM Game g WHERE g.league = :league " +
-            "AND (g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') OR g.finalGame = true) " +
-            "ORDER BY " +
-            "CASE WHEN g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') THEN 0 ELSE 1 END, " +
-            "g.isoDate DESC, g.id DESC " +
-            "LIMIT 1")
+    @Query(value = """
+                SELECT
+                    g.year,
+                    g.season_type,
+                    TO_CHAR(g.iso_date, 'YYYY-MM-DD'),
+                    g.week
+                FROM game g
+                WHERE g.league = :league
+                  AND (g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD')
+                       OR g.final_game = true)
+                ORDER BY
+                    CASE WHEN g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD') THEN 0 ELSE 1 END,
+                    g.iso_date DESC,
+                    g.id DESC
+                LIMIT 1
+            """, nativeQuery = true)
     CurrentContext findCurrentContext(@Param("league") League league);
 
     @Query(value = "SELECT COUNT(*) > 0 " +
