@@ -128,7 +128,7 @@ public class GameController {
                 actualYear,
                 actualSeasonType,
                 actualWeek,
-                String.valueOf(context.date()),
+                String.valueOf(context.date()).substring(0, String.valueOf(context.date()).indexOf("T")),
                 "",
                 pageable
         );
