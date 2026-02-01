@@ -42,7 +42,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "FROM Game g WHERE g.league = :league " +
             "AND (g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') OR g.finalGame = true) " +
             "ORDER BY " +
-            "CASE WHEN g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME') THEN 0 ELSE 1 END, " +
+            "CASE WHEN g.gameStatus IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') THEN 0 ELSE 1 END, " +
             "g.isoDate DESC, g.id DESC " +
             "LIMIT 1")
     CurrentContext findCurrentContext(@Param("league") League league);
