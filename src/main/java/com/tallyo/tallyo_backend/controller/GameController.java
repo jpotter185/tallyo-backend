@@ -44,8 +44,9 @@ public class GameController {
     }
 
     @GetMapping("/nhl-dates")
-    public List<String> getNhlDate() {
-        return calendarService.getNhlGameDates();
+    public List<String> getNhlDate(
+            @RequestParam(defaultValue = "America/New_York") String userTimeZone) {
+        return calendarService.getNhlGameDates(userTimeZone);
     }
 
     @GetMapping("/context")
@@ -68,15 +69,17 @@ public class GameController {
             @RequestParam(defaultValue = "100") Integer size,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "") String date,
-            @RequestParam(defaultValue = "id") String sortBy
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "America/New_York") String userTimeZone
     ) throws BadRequestException {
         long startTime = System.currentTimeMillis();
-        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, date:{}, size:{}, page:{},sortBy:{}",
+        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, date:{}, userTimeZone:{}, size:{}, page:{},sortBy:{}",
                 league,
                 year,
                 seasonType,
                 week,
                 date,
+                userTimeZone,
                 size,
                 page,
                 sortBy);
@@ -84,7 +87,7 @@ public class GameController {
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
-        Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, date, pageable);
+        Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, date, userTimeZone, pageable);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
@@ -125,6 +128,7 @@ public class GameController {
                 actualYear,
                 actualSeasonType,
                 actualWeek,
+                "",
                 "",
                 pageable
         );

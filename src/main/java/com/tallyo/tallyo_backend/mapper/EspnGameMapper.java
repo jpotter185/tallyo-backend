@@ -9,6 +9,8 @@ import com.tallyo.tallyo_backend.model.espn.scoreboard.*;
 import com.tallyo.tallyo_backend.model.espn.scoreboard.Record;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,7 +70,8 @@ public class EspnGameMapper {
                         .map(Venue::getAddress)
                         .map(Address::toString)
                         .orElse(""))
-                .isoDate(competition.getStartDate())
+                .isoDate(ZonedDateTime.parse(competition.getStartDate(),
+                        DateTimeFormatter.ISO_DATE_TIME).toInstant())
                 .homeScore(getScore("home", competition.getCompetitors()))
                 .awayScore(getScore("away", competition.getCompetitors()))
                 .period(Optional.ofNullable(status)
@@ -145,17 +148,21 @@ public class EspnGameMapper {
     }
 
     private String getOverallRecord(Competitor competitor) {
-        return getRecordByType(competitor, "total");
+        return getRecord(competitor);
+//        return getRecordByType(competitor, "total");
     }
 
     private String getRecord(Competitor competitor, String type) {
         return getRecordByType(competitor, type);
     }
 
+    private String getRecord(Competitor competitor) {
+        return competitor.getRecords().stream().map(Record::getSummary).findFirst().orElse(null);
+    }
+
     private String getRecordByType(Competitor competitor, String type) {
         if (competitor.getRecords() == null) return null;
-
-        return competitor.getRecords().stream().filter(r -> type.equalsIgnoreCase(r.getType())).map(Record::getSummary).findFirst().orElse(null);
+        return competitor.getRecords().stream().filter(r -> type.equalsIgnoreCase(r.getType())).map(Record::getSummary).findFirst().orElse("JACK");
     }
 
     private <T> T first(List<T> list) {

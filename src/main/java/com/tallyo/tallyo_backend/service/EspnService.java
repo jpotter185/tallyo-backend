@@ -44,6 +44,7 @@ public class EspnService {
                 espnApiProperties.getScoreboard().getLimit(),
                 startDate,
                 endDate);
+        logger.info("URL:{}", gamesUrl);
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
         List<Game> games = new ArrayList<>();
         if (espnScoreboardResponse != null) {
@@ -82,7 +83,7 @@ public class EspnService {
                 year,
                 year);
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
-        logger.info("Got response from ESPN");
+        logger.info("Got response from ESPN called URL:{}", gamesUrl);
         List<Game> games = new ArrayList<>();
         if (espnScoreboardResponse != null) {
             games = espnScoreboardResponse.getEvents().stream()

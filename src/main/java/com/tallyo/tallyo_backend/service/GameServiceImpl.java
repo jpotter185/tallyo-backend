@@ -10,7 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -28,13 +31,26 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Page<Game> getGames(League league, int year, int seasonType, int week, String date, Pageable pageable) {
-        logger.info("Getting games for league:{}, year:{}, seasonType:{}, week:{}",
+    public Page<Game> getGames(League league, int year, int seasonType, int week, String date, String timezone, Pageable pageable) {
+        logger.info("Getting games for league:{}, year:{}, seasonType:{}, week:{}, date{}",
                 league.getValue(),
                 year,
                 seasonType,
-                week);
-        return gameRepository.getGames(league, year, seasonType, week, date.substring(0, 10), pageable);
+                week,
+                date);
+        LocalDate localDate = null;
+        Instant utcStart = null;
+        Instant utcEnd = null;
+        if (!date.isEmpty()) {
+            localDate = LocalDate.parse(date);
+            ZoneId userZone = ZoneId.of(timezone);
+            ZonedDateTime startOfDay = localDate.atStartOfDay(userZone);
+            ZonedDateTime endOfDay = localDate.plusDays(1).atStartOfDay(userZone);
+            utcStart = startOfDay.toInstant();
+            utcEnd = endOfDay.toInstant();
+        }
+        logger.info("localDate:{}, userTimezone:{}, Start of day: {}, end of day:{}", localDate, timezone, utcStart, utcEnd);
+        return gameRepository.getGames(league, year, seasonType, week, utcStart, utcEnd, pageable);
     }
 
     @Override

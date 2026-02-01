@@ -10,5 +10,5 @@ public interface CalendarService {
 
     int getCurrentYear();
 
-    List<String> getNhlGameDates();
+    List<String> getNhlGameDates(String timezone);
 }

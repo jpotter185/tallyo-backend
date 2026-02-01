@@ -7,6 +7,7 @@ import com.tallyo.tallyo_backend.enums.League;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class Game {
     private int year;
     private String stadiumName;
     private String location;
-    private String isoDate;
+    private Instant isoDate;
     private String homeScore;
     private String awayScore;
     private String period;
@@ -85,14 +86,14 @@ public class Game {
     @JsonProperty("stats")
     public StatResponse getStatsForJson() {
         if (stats == null) return null;
-        Map<String,String> homeStats = new HashMap<>();
-        Map<String,String> awayStats = new HashMap<>();
-        for( Map.Entry<GameStatKey, GameStat> entry: this.getStats().entrySet()){
+        Map<String, String> homeStats = new HashMap<>();
+        Map<String, String> awayStats = new HashMap<>();
+        for (Map.Entry<GameStatKey, GameStat> entry : this.getStats().entrySet()) {
             String statName = entry.getKey().getStatType();
             String statValue = entry.getValue().getStatValue();
-            if(entry.getKey().getTeamId() == this.getHomeTeam().getTeamKey().getTeamId()){homeStats.put(statName, statValue);
-            }
-            else {
+            if (entry.getKey().getTeamId() == this.getHomeTeam().getTeamKey().getTeamId()) {
+                homeStats.put(statName, statValue);
+            } else {
                 awayStats.put(statName, statValue);
             }
         }

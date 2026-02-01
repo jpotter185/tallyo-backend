@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -20,7 +21,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "AND (:year = 0 OR g.year = :year) " +
             "AND (:seasonType = 0 OR g.seasonType = :seasonType) " +
             "AND (:week = 0 OR g.week = :week) " +
-            "AND (:date IS NULL OR :date = '' OR CAST(g.isoDate AS date) = CAST(:date AS date)) " +
+            "AND (CAST(:startDate AS timestamp) IS NULL OR g.isoDate >= :startDate) " +
+            "AND (CAST(:endDate AS timestamp) IS NULL OR g.isoDate < :endDate) " +
             "ORDER BY CASE " +
             "  WHEN g.gameStatus = 'STATUS_IN_PROGRESS' OR g.gameStatus = 'STATUS_END_PERIOD' OR g.gameStatus = 'STATUS_HALFTIME' THEN 1 " +
             "  WHEN g.gameStatus = 'STATUS_SCHEDULED' THEN 2 " +
@@ -31,7 +33,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                         @Param("year") int year,
                         @Param("seasonType") int seasonType,
                         @Param("week") int week,
-                        @Param("date") String date,
+                        @Param("startDate") Instant startDate,
+                        @Param("endDate") Instant endDate,
                         Pageable pageable);
 
 
@@ -54,9 +57,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             ")", nativeQuery = true)
     boolean shouldUpdate();
 
-    @Query(value = "SELECT DISTINCT iso_date::DATE::TEXT " +
+    @Query(value = "SELECT DISTINCT iso_date " +
             "FROM games " +
             "WHERE league = 'NHL'",
             nativeQuery = true)
-    List<String> getNhlGameDates();
+    List<Instant> getNhlGameDates();
 }

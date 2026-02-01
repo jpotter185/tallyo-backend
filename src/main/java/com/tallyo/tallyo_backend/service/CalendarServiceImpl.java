@@ -8,8 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarServiceImpl implements CalendarService {
@@ -33,7 +36,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CurrentContext getCurrentContext(League league) {
         logger.info("Getting current context for league:{}", league);
         CurrentContext context = gameRepository.findCurrentContext(league);
-        CurrentContext retContext = context != null ? context : new CurrentContext(getCurrentYear(), 2, LocalDate.now().toString(), 1);
+        CurrentContext retContext = context != null ? context : new CurrentContext(getCurrentYear(), 2, Instant.now(), 1);
         logger.info("Got current context for league:{}, year:{}, seasonType:{}, week:{}",
                 league.getValue(),
                 retContext.year(),
@@ -43,7 +46,15 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<String> getNhlGameDates() {
-        return gameRepository.getNhlGameDates();
+    public List<String> getNhlGameDates(String timezone) {
+        ZoneId userZone = ZoneId.of(timezone);
+        List<Instant> gameTimes = gameRepository.getNhlGameDates();
+
+        return gameTimes.stream()
+                .map(instant -> instant.atZone(userZone).toLocalDate())
+                .distinct() // Remove duplicates
+                .sorted()
+                .map(LocalDate::toString)
+                .collect(Collectors.toList());
     }
 }
