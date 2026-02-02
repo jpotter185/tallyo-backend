@@ -72,17 +72,9 @@ public class GameController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "America/New_York") String userTimeZone
     ) throws BadRequestException {
-        long startTime = System.currentTimeMillis();
-
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-
         Page<Game> pages = gameServiceImpl.getGames(leagueEnum, year, seasonType, week, date, userTimeZone, pageable);
-
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        logger.info("getGames took {}ms, got {} games", duration, pages.getTotalElements());
-
         return new PageResponse<>(pages);
 
     }
@@ -98,7 +90,6 @@ public class GameController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
-        long startTime = System.currentTimeMillis();
 
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
@@ -115,9 +106,6 @@ public class GameController {
                 userTimeZone,
                 pageable
         );
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        logger.info("getGames took {}ms, got {} games", duration, pages.getTotalElements());
         return new PageResponse<>(pages);
     }
 

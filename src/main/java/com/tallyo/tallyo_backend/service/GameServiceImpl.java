@@ -56,7 +56,7 @@ public class GameServiceImpl implements GameService {
 
     @Scheduled(fixedRate = 20000)
     public void updateGamesForToday() {
-        Instant startDate = Instant.now();
+        long startTime = System.currentTimeMillis();
         logger.info("Scheduled- Updating games for today");
         try {
             if (!gameRepository.shouldUpdate()) {
@@ -77,7 +77,7 @@ public class GameServiceImpl implements GameService {
             gameRepository.saveAll(nhlGames);
             logger.info("Finished updating games for today, updated {} games in {}ms ",
                     nflGames.size() + cfbGames.size() + nhlGames.size(),
-                    Instant.now().toEpochMilli() - startDate.toEpochMilli());
+                    System.currentTimeMillis() - startTime);
         } catch (Exception e) {
             logger.error("Error updating games:");
             logger.error(e.getMessage());
