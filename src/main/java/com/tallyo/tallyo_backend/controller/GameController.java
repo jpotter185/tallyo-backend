@@ -54,11 +54,9 @@ public class GameController {
             @RequestParam String league,
             @RequestParam(defaultValue = "America/New_York") String userTimeZone) throws BadRequestException {
         long startTime = System.currentTimeMillis();
-        logger.info("Getting current context for league:{}", league);
         League leagueEnum = getLeagueEnumFromString(league);
 
         CurrentContext currentContext = calendarService.getCurrentContext(leagueEnum, userTimeZone);
-        logger.info("Got current context for league:{} in {} ms", league, System.currentTimeMillis() - startTime);
         return currentContext;
     }
 
@@ -75,16 +73,6 @@ public class GameController {
             @RequestParam(defaultValue = "America/New_York") String userTimeZone
     ) throws BadRequestException {
         long startTime = System.currentTimeMillis();
-        logger.info("Started getGames with params: league:{}, year:{},seasonType:{},week:{}, date:{}, userTimeZone:{}, size:{}, page:{},sortBy:{}",
-                league,
-                year,
-                seasonType,
-                week,
-                date,
-                userTimeZone,
-                size,
-                page,
-                sortBy);
 
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
@@ -111,14 +99,7 @@ public class GameController {
             @RequestParam(defaultValue = "id") String sortBy
     ) throws BadRequestException {
         long startTime = System.currentTimeMillis();
-        logger.info("Started getCurrentGames with params: league:{}, year:{},seasonType:{},week:{}, size:{}, page:{},sortBy:{}",
-                league,
-                year,
-                seasonType,
-                week,
-                size,
-                page,
-                sortBy);
+
         League leagueEnum = getLeagueEnumFromString(league);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
@@ -146,13 +127,11 @@ public class GameController {
                                       @RequestParam(defaultValue = "false") boolean shouldFetchStats) throws BadRequestException {
 
         long startTime = System.currentTimeMillis();
-        logger.info("Updating games for league:{}, year:{}", league, year);
         League leagueEnum = getLeagueEnumFromString(league);
         List<Game> games = gameServiceImpl.updateGames(leagueEnum, year, shouldFetchStats);
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-        logger.info("updateGames took {}ms, got {} games", duration, games.size());
         return new UpdateResponse(games.size(), duration);
     }
 

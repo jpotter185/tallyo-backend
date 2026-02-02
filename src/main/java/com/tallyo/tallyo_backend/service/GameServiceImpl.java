@@ -32,12 +32,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Page<Game> getGames(League league, int year, int seasonType, int week, String date, String timezone, Pageable pageable) {
-        logger.info("Getting games for league:{}, year:{}, seasonType:{}, week:{}, date{}",
-                league.getValue(),
-                year,
-                seasonType,
-                week,
-                date);
+
         LocalDate localDate = null;
         Instant utcStart = null;
         Instant utcEnd = null;
@@ -49,7 +44,6 @@ public class GameServiceImpl implements GameService {
             utcStart = startOfDay.toInstant();
             utcEnd = endOfDay.toInstant();
         }
-        logger.info("localDate:{}, userTimezone:{}, Start of day: {}, end of day:{}", localDate, timezone, utcStart, utcEnd);
         return gameRepository.getGames(league, year, seasonType, week, utcStart, utcEnd, pageable);
     }
 
@@ -57,17 +51,15 @@ public class GameServiceImpl implements GameService {
     public List<Game> updateGames(League league, int year, boolean shouldFetchStats) {
         List<Game> games = espnService.fetchGames(league, year, shouldFetchStats);
         gameRepository.saveAll(games);
-        logger.info("Got " + games.size() + " games from ESPN API");
         return games;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 20000)
     public void updateGamesForToday() {
-        logger.info("Updating games for today");
+        Instant startDate = Instant.now();
+        logger.info("Scheduled- Updating games for today");
         try {
-            logger.info("Checking if we should update");
             if (!gameRepository.shouldUpdate()) {
-                logger.info("No games currently in progress");
                 return;
             }
         } catch (Exception e) {
@@ -78,15 +70,14 @@ public class GameServiceImpl implements GameService {
             String yesterday = LocalDate.now().minusDays(1).format(formatter);
             String today = LocalDate.now().format(formatter);
             List<Game> nflGames = espnService.fetchGames(League.NFL, yesterday, today, true);
-            logger.info("Got " + nflGames.size() + " nfl games from ESPN API");
             gameRepository.saveAll(nflGames);
             List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today, true);
-            logger.info("Got " + cfbGames.size() + " cfb games from ESPN API");
             gameRepository.saveAll(cfbGames);
             List<Game> nhlGames = espnService.fetchGames(League.NHL, yesterday, today, true);
-            logger.info("Got " + nhlGames.size() + " nhl games from ESPN API");
             gameRepository.saveAll(nhlGames);
-            logger.info("Finished updating games");
+            logger.info("Finished updating games for today, updated {} games in {}ms ",
+                    nflGames.size() + cfbGames.size() + nhlGames.size(),
+                    Instant.now().toEpochMilli() - startDate.toEpochMilli());
         } catch (Exception e) {
             logger.error("Error updating games:");
             logger.error(e.getMessage());

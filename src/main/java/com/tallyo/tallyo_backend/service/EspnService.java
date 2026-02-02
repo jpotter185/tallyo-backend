@@ -82,7 +82,6 @@ public class EspnService {
                 year,
                 year);
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
-        logger.info("Got response from ESPN called URL:{}", gamesUrl);
         List<Game> games = new ArrayList<>();
         if (espnScoreboardResponse != null) {
             games = espnScoreboardResponse.getEvents().stream()
