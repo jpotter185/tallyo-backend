@@ -70,7 +70,6 @@ public class GameServiceImpl implements GameService {
                 logger.info("No games currently in progress");
                 return;
             }
-            logger.info("we should update");
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

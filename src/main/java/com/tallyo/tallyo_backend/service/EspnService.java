@@ -44,7 +44,6 @@ public class EspnService {
                 espnApiProperties.getScoreboard().getLimit(),
                 startDate,
                 endDate);
-        logger.info("URL:{}", gamesUrl);
         EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
         List<Game> games = new ArrayList<>();
         if (espnScoreboardResponse != null) {
@@ -127,7 +126,6 @@ public class EspnService {
     }
 
     private EspnScoreboardResponse fetchGamesForUrl(String url) {
-        logger.info("Calling {}", url);
         return restTemplate.getForObject(url, EspnScoreboardResponse.class);
     }
 }
