@@ -1,0 +1,333 @@
+openapi: 3.1.0
+info:
+  title: Tallyo Backend API
+  version: 1.0.0
+  description: Contract for Tallyo UI <-> Spring backend integration.
+servers:
+  - url: https://api.tallyo.us
+  - url: http://localhost:8080
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    TeamKey:
+      type: object
+      required: [teamId, league]
+      properties:
+        teamId:
+          type: integer
+        league:
+          type: string
+    Team:
+      type: object
+      required: [teamKey, id, name, abbreviation, logo, location]
+      properties:
+        teamKey:
+          $ref: '#/components/schemas/TeamKey'
+        id:
+          type: string
+        name:
+          type: string
+        abbreviation:
+          type: string
+        logo:
+          type: string
+        primaryColor:
+          type: string
+        alternateColor:
+          type: string
+        location:
+          type: string
+        record:
+          type: string
+        score:
+          type: string
+    TeamStats:
+      type: object
+      properties:
+        homeStats:
+          type: object
+          additionalProperties:
+            type: string
+        awayStats:
+          type: object
+          additionalProperties:
+            type: string
+    GameOdd:
+      type: object
+      properties:
+        spreadText:
+          type: string
+    Game:
+      type: object
+      required: [id, league, homeTeam, awayTeam, isoDate, date]
+      properties:
+        id:
+          type: string
+        league:
+          type: string
+          enum: [nfl, cfb, nhl]
+        homeTeam:
+          $ref: '#/components/schemas/Team'
+        awayTeam:
+          $ref: '#/components/schemas/Team'
+        stadiumName:
+          type: string
+        location:
+          type: string
+        isoDate:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date-time
+        homeScore:
+          type: string
+        awayScore:
+          type: string
+        period:
+          type: string
+        shortPeriod:
+          type: string
+        channel:
+          type: string
+        espnLink:
+          type: string
+        lastPlay:
+          type: string
+        currentDownAndDistance:
+          type: string
+        down:
+          type: string
+        ballLocation:
+          type: string
+        possessionTeamId:
+          type: string
+        homeTimeouts:
+          type: integer
+        awayTimeouts:
+          type: integer
+        winner:
+          type: string
+        headline:
+          type: string
+        gameOdd:
+          $ref: '#/components/schemas/GameOdd'
+        gameStatus:
+          type: string
+        stats:
+          $ref: '#/components/schemas/TeamStats'
+        homeWinPercentage:
+          type: string
+        awayWinPercentage:
+          type: string
+        finalGame:
+          type: boolean
+        final:
+          type: boolean
+        homeRecordAtTimeOfGame:
+          type: string
+        awayRecordAtTimeOfGame:
+          type: string
+    CurrentContext:
+      type: object
+      required: [year, seasonType, date, week]
+      properties:
+        year:
+          type: integer
+        seasonType:
+          type: integer
+        date:
+          type: string
+          format: date
+        week:
+          type: integer
+    GamesPage:
+      type: object
+      required: [content, page, size, totalElements, totalPages, first, last]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        first:
+          type: boolean
+        last:
+          type: boolean
+security:
+  - ApiKeyAuth: []
+paths:
+  /api/v1/games:
+    get:
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl]
+        - in: query
+          name: year
+          schema:
+            type: integer
+        - in: query
+          name: seasonType
+          schema:
+            type: integer
+        - in: query
+          name: week
+          schema:
+            type: integer
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: userTimeZone
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paged list of games
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GamesPage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/games/current:
+    get:
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl]
+        - in: query
+          name: userTimeZone
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current games context list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GamesPage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/games/context:
+    get:
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl]
+        - in: query
+          name: userTimeZone
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Context for current season/date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentContext'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/games/dates:
+    get:
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl]
+        - in: query
+          name: userTimeZone
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Available game dates for league
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: date
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'

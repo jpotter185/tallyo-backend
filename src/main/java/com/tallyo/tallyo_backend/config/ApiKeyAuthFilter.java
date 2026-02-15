@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Component
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
@@ -22,11 +23,15 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         String requestApiKey = request.getHeader("x-api-key");
         if (requestApiKey != null && requestApiKey.equals(validApiKey)) {
             filterChain.doFilter(request, response);
-        } else {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Forbidden\"}");
+            return;
         }
-    }
 
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.getWriter().write(String.format(
+                "{\"code\":\"FORBIDDEN\",\"message\":\"Forbidden\",\"details\":\"Missing or invalid API key\",\"path\":\"%s\",\"timestamp\":\"%s\"}",
+                request.getRequestURI(),
+                Instant.now()
+        ));
+    }
 }
