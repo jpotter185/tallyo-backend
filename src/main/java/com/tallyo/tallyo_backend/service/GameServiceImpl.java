@@ -69,14 +69,14 @@ public class GameServiceImpl implements GameService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             String yesterday = LocalDate.now().minusDays(1).format(formatter);
             String today = LocalDate.now().format(formatter);
-            List<Game> nflGames = espnService.fetchGames(League.NFL, yesterday, today, true);
-            gameRepository.saveAll(nflGames);
-            List<Game> cfbGames = espnService.fetchGames(League.CFB, yesterday, today, true);
-            gameRepository.saveAll(cfbGames);
-            List<Game> nhlGames = espnService.fetchGames(League.NHL, yesterday, today, true);
-            gameRepository.saveAll(nhlGames);
+            int updatedGameCount = 0;
+            for (League league : League.values()) {
+                List<Game> games = espnService.fetchGames(league, yesterday, today, true);
+                gameRepository.saveAll(games);
+                updatedGameCount += games.size();
+            }
             logger.info("Finished updating games for today, updated {} games in {}ms ",
-                    nflGames.size() + cfbGames.size() + nhlGames.size(),
+                    updatedGameCount,
                     System.currentTimeMillis() - startTime);
         } catch (Exception e) {
             logger.error("Error updating games:");

@@ -68,7 +68,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query(value = "SELECT DISTINCT iso_date " +
             "FROM games " +
-            "WHERE league = 'NHL'",
+            "WHERE league = :league",
             nativeQuery = true)
-    List<Instant> getNhlGameDates();
+    List<Instant> getGameDates(@Param("league") String league);
 }

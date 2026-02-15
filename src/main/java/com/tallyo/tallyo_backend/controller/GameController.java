@@ -46,7 +46,15 @@ public class GameController {
     @GetMapping("/nhl-dates")
     public List<String> getNhlDate(
             @RequestParam(defaultValue = "America/New_York") String userTimeZone) {
-        return calendarService.getNhlGameDates(userTimeZone);
+        return calendarService.getGameDates(League.NHL, userTimeZone);
+    }
+
+    @GetMapping("/dates")
+    public List<String> getLeagueDates(
+            @RequestParam String league,
+            @RequestParam(defaultValue = "America/New_York") String userTimeZone) throws BadRequestException {
+        League leagueEnum = getLeagueEnumFromString(league);
+        return calendarService.getGameDates(leagueEnum, userTimeZone);
     }
 
     @GetMapping("/context")
@@ -99,9 +107,9 @@ public class GameController {
         int actualSeasonType = context.getSeasonType();
         Page<Game> pages = gameServiceImpl.getGames(
                 leagueEnum,
-                leagueEnum.getValue().equals("nhl") ? 0 : actualYear,
+                leagueEnum.isSupportsYearFilter() ? actualYear : 0,
                 actualSeasonType,
-                leagueEnum.getValue().equals("nhl") ? 0 : context.getWeek(),
+                leagueEnum.isSupportsWeekFilter() ? context.getWeek() : 0,
                 context.getDate(),
                 userTimeZone,
                 pageable

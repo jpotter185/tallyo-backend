@@ -48,9 +48,9 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<String> getNhlGameDates(String timezone) {
+    public List<String> getGameDates(League league, String timezone) {
         ZoneId userZone = ZoneId.of(timezone);
-        List<Instant> gameTimes = gameRepository.getNhlGameDates();
+        List<Instant> gameTimes = gameRepository.getGameDates(league.name());
 
         return gameTimes.stream()
                 .map(instant -> instant.atZone(userZone).toLocalDate())
