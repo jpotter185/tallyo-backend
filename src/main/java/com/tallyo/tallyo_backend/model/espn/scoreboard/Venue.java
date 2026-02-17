@@ -1,5 +1,7 @@
 package com.tallyo.tallyo_backend.model.espn.scoreboard;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,11 +12,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Venue {
     private String id;
     private String fullName;
     private Address address;
-    private boolean indoor;
+    private Boolean indoor;
 
     // getters & setters
 }

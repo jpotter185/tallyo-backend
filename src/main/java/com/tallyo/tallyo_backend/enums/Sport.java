@@ -5,10 +5,12 @@ import lombok.Getter;
 @Getter
 public enum Sport {
     HOCKEY("hockey"),
-    FOOTBALL("football");
+    FOOTBALL("football"),
+    SOCCER("soccer");
+
     private final String value;
 
-    private Sport(String value) {
+    Sport(String value) {
         this.value = value;
     }
 }

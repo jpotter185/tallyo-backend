@@ -39,8 +39,34 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                buildError("INTERNAL_ERROR", "An unexpected error occurred", ex.getMessage(), request)
+                buildError(
+                        "INTERNAL_ERROR",
+                        "An unexpected error occurred",
+                        extractDetails(ex),
+                        request
+                )
         );
+    }
+
+    private String extractDetails(Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        }
+
+        Throwable root = throwable;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+
+        String top = throwable.getMessage();
+        String bottom = root.getMessage();
+
+        if (bottom == null || bottom.isBlank() || root == throwable) {
+            return top;
+        }
+
+        String rootSummary = root.getClass().getSimpleName() + ": " + bottom;
+        return (top == null || top.isBlank()) ? rootSummary : top + " | root cause: " + rootSummary;
     }
 
     private ApiError buildError(String code, String message, String details, HttpServletRequest request) {

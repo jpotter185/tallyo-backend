@@ -1,5 +1,7 @@
 package com.tallyo.tallyo_backend.model.espn.scoreboard;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
     private String id;
     private String uid;

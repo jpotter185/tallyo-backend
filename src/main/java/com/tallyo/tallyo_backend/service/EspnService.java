@@ -125,7 +125,12 @@ public class EspnService {
     }
 
     private EspnScoreboardResponse fetchGamesForUrl(String url) {
-        return restTemplate.getForObject(url, EspnScoreboardResponse.class);
+        try {
+            return restTemplate.getForObject(url, EspnScoreboardResponse.class);
+        } catch (Exception e) {
+            logger.error("Failed to fetch/parse ESPN scoreboard from {}", url, e);
+            throw e;
+        }
     }
 }
 

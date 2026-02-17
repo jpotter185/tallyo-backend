@@ -84,7 +84,7 @@ components:
           type: string
         league:
           type: string
-          enum: [nfl, cfb, nhl]
+          enum: [nfl, cfb, nhl, mls]
         homeTeam:
           $ref: '#/components/schemas/Team'
         awayTeam:
@@ -181,7 +181,7 @@ components:
           type: boolean
         statsProfile:
           type: string
-          enum: [football, hockey]
+          enum: [football, hockey, soccer]
         showInHeader:
           type: boolean
         showInDashboard:
@@ -234,7 +234,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl]
+            enum: [nfl, cfb, nhl, mls]
         - in: query
           name: year
           schema:
@@ -283,7 +283,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl]
+            enum: [nfl, cfb, nhl, mls]
         - in: query
           name: userTimeZone
           schema:
@@ -315,7 +315,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl]
+            enum: [nfl, cfb, nhl, mls]
         - in: query
           name: userTimeZone
           schema:
@@ -347,7 +347,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl]
+            enum: [nfl, cfb, nhl, mls]
         - in: query
           name: userTimeZone
           schema:

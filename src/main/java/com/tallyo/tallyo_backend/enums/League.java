@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum League {
     NFL(Sport.FOOTBALL, "nfl", "NFL", true, true, true, "season", "football"),
     CFB(Sport.FOOTBALL, "college-football", "CFB", true, true, true, "season", "football"),
-    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, false, "date", "hockey");
+    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, false, "date", "hockey"),
+    MLS(Sport.SOCCER, "usa.1", "MLS", false, false, false, "date", "soccer");
 
     private final String value;
     private final String label;

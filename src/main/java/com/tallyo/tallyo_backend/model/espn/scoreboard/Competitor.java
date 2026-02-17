@@ -1,5 +1,7 @@
 package com.tallyo.tallyo_backend.model.espn.scoreboard;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,11 +13,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Competitor {
-    private int id;
+    private Integer id;
     private String uid;
     private String type;
-    private int order;
+    private Integer order;
     private String homeAway;
     private Team team;
     private String score;

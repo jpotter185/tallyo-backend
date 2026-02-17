@@ -1,5 +1,7 @@
 package com.tallyo.tallyo_backend.model.espn.scoreboard;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.*;
 
 @Getter
@@ -7,9 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Weather {
     private String displayValue;
-    private int temperature;
-    private int highTemperature;
+    private Integer temperature;
+    private Integer highTemperature;
     private String conditionId;
 }
