@@ -17,6 +17,9 @@ public class LeagueMetadataResponse {
     private boolean supportsYearFilter;
     private boolean supportsWeekFilter;
     private String statsProfile;
+    private String teamOrder;
+    private boolean supportsOdds;
+    private boolean supportsLiveDetails;
     private boolean showInHeader;
     private boolean showInDashboard;
 
@@ -30,6 +33,9 @@ public class LeagueMetadataResponse {
                 .supportsYearFilter(league.isSupportsYearFilter())
                 .supportsWeekFilter(league.isSupportsWeekFilter())
                 .statsProfile(league.getStatsProfile())
+                .teamOrder(league.getTeamOrder())
+                .supportsOdds(league.isSupportsOdds())
+                .supportsLiveDetails(league.isSupportsLiveDetails())
                 .showInHeader(true)
                 .showInDashboard(true)
                 .build();

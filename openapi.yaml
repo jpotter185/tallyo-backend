@@ -162,7 +162,7 @@ components:
           type: integer
     LeagueMetadata:
       type: object
-      required: [id, label, path, supportsStandings, contextMode, supportsYearFilter, supportsWeekFilter, statsProfile, showInHeader, showInDashboard]
+      required: [id, label, path, supportsStandings, contextMode, supportsYearFilter, supportsWeekFilter, statsProfile, teamOrder, supportsOdds, supportsLiveDetails, showInHeader, showInDashboard]
       properties:
         id:
           type: string
@@ -182,6 +182,13 @@ components:
         statsProfile:
           type: string
           enum: [football, hockey, soccer]
+        teamOrder:
+          type: string
+          enum: [away-left, home-left]
+        supportsOdds:
+          type: boolean
+        supportsLiveDetails:
+          type: boolean
         showInHeader:
           type: boolean
         showInDashboard:
