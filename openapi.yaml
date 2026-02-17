@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Tallyo Backend API
-  version: 1.0.0
+  version: 1.1.0
   description: Contract for Tallyo UI <-> Spring backend integration.
 servers:
   - url: https://api.tallyo.us
@@ -160,6 +160,32 @@ components:
           format: date
         week:
           type: integer
+    LeagueMetadata:
+      type: object
+      required: [id, label, path, supportsStandings, contextMode, supportsYearFilter, supportsWeekFilter, statsProfile, showInHeader, showInDashboard]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        path:
+          type: string
+        supportsStandings:
+          type: boolean
+        contextMode:
+          type: string
+          enum: [season, date]
+        supportsYearFilter:
+          type: boolean
+        supportsWeekFilter:
+          type: boolean
+        statsProfile:
+          type: string
+          enum: [football, hockey]
+        showInHeader:
+          type: boolean
+        showInDashboard:
+          type: boolean
     GamesPage:
       type: object
       required: [content, page, size, totalElements, totalPages, first, last]
@@ -183,6 +209,23 @@ components:
 security:
   - ApiKeyAuth: []
 paths:
+  /api/v1/leagues:
+    get:
+      responses:
+        '200':
+          description: Supported leagues and capabilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeagueMetadata'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /api/v1/games:
     get:
       parameters:

@@ -1,0 +1,25 @@
+name: Backend OpenAPI Check
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  openapi-and-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate OpenAPI YAML syntax
+        run: ruby -e "require 'yaml'; YAML.load_file('openapi.yaml'); puts 'openapi.yaml valid'"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compile
+        run: ./mvnw -q -DskipTests compile
