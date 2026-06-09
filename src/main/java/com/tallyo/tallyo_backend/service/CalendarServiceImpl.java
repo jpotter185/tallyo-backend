@@ -36,7 +36,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CurrentContext getCurrentContext(League league, String timezone) {
 
 
-        CurrentContext context = gameRepository.findCurrentContext(league.getValue().toUpperCase());
+        CurrentContext context = gameRepository.findCurrentContext(league.name(), Instant.now());
         LocalDate today = LocalDate.now(ZoneId.of(timezone));
         String formatted = today.toString();
 

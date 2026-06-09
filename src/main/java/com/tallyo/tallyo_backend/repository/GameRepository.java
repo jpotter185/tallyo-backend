@@ -46,15 +46,24 @@ public interface GameRepository extends JpaRepository<Game, Long> {
                     g.week
                 FROM games g
                 WHERE g.league = :league
-                  AND (g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD')
-                       OR g.final_game = true)
+                  AND (
+                      g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD')
+                      OR g.iso_date >= :now
+                      OR g.final_game = true
+                  )
                 ORDER BY
-                    CASE WHEN g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD') THEN 0 ELSE 1 END,
-                    g.iso_date DESC,
+                    CASE
+                        WHEN g.game_status IN ('STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD') THEN 0
+                        WHEN g.iso_date >= :now THEN 1
+                        WHEN g.final_game = true THEN 2
+                        ELSE 3
+                    END,
+                    CASE WHEN g.iso_date >= :now THEN g.iso_date END ASC,
+                    CASE WHEN g.iso_date < :now THEN g.iso_date END DESC,
                     g.id DESC
                 LIMIT 1
             """, nativeQuery = true)
-    CurrentContext findCurrentContext(@Param("league") String league);
+    CurrentContext findCurrentContext(@Param("league") String league, @Param("now") Instant now);
 
     @Query(value = "SELECT COUNT(*) > 0 " +
             "FROM games " +
