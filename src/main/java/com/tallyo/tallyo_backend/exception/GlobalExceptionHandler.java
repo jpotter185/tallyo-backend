@@ -4,6 +4,8 @@ import com.tallyo.tallyo_backend.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,6 +32,21 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity.badRequest().body(
                 buildError("INVALID_TIMEZONE", "Invalid timezone", ex.getMessage(), request)
+        );
+    }
+
+    @ExceptionHandler({ResourceAccessException.class, RestClientException.class})
+    public ResponseEntity<ApiError> handleUpstreamServiceException(
+            RestClientException ex,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(
+                buildError(
+                        "UPSTREAM_SERVICE_UNAVAILABLE",
+                        "Unable to reach upstream sports data provider",
+                        extractDetails(ex),
+                        request
+                )
         );
     }
 
