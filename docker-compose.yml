@@ -2,6 +2,7 @@ services:
   app:
     build: .
     container_name: myapp-spring
+    restart: unless-stopped
     expose:
       - "8080"
     environment:
@@ -19,6 +20,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: myapp-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -38,6 +40,7 @@ services:
   dozzle:
     image: amir20/dozzle:latest
     container_name: myapp-dozzle
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./data/users.yml:/data/users.yml
