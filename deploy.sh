@@ -47,6 +47,6 @@ sleep 3
 echo -e "${GREEN}Containers started successfully!${NC}"
 docker compose ps
 
-# Show logs
-echo -e "${YELLOW}Showing logs (Ctrl+C to exit)...${NC}"
-docker compose logs -f
+# Show recent logs
+echo -e "${YELLOW}Recent logs:${NC}"
+docker compose logs --tail=50
