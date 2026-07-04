@@ -6,6 +6,7 @@ import com.tallyo.tallyo_backend.entity.GameStat;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.mapper.EspnBoxScoreMapper;
 import com.tallyo.tallyo_backend.mapper.EspnGameMapper;
+import com.tallyo.tallyo_backend.mapper.EspnSummaryDetailsMapper;
 import com.tallyo.tallyo_backend.model.espn.box_score.EspnBoxscoreResponse;
 import com.tallyo.tallyo_backend.model.espn.scoreboard.EspnScoreboardResponse;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public class EspnService {
 
     EspnGameMapper espnGameMapper = new EspnGameMapper();
     EspnBoxScoreMapper espnBoxScoreMapper = new EspnBoxScoreMapper();
+    EspnSummaryDetailsMapper espnSummaryDetailsMapper = new EspnSummaryDetailsMapper();
 
 
     public EspnService(RestTemplate restTemplate, EspnApiProperties espnApiProperties) {
@@ -61,11 +63,13 @@ public class EspnService {
 
     private void attachStatsToGame(Game game, League league) {
         try {
-            List<GameStat> stats = fetchStatsForGame(
-                    game.getId(),
-                    league
-            );
-            game.addStats(stats);
+            EspnBoxscoreResponse summary = fetchSummaryForGame(game.getId(), league);
+            if (summary == null) {
+                return;
+            }
+            game.addStats(toGameStats(summary, game.getId()));
+            game.addLeaders(espnSummaryDetailsMapper.toLeaders(summary, game.getId()));
+            game.addScoringPlays(espnSummaryDetailsMapper.toScoringPlays(summary, league, game));
         } catch (Exception e) {
             logger.warn("Could not fetch stats for game {}: {}",
                     game.getId(), e.getMessage());
@@ -97,31 +101,32 @@ public class EspnService {
     }
 
     public List<GameStat> fetchStatsForGame(int gameId, League league) {
+        EspnBoxscoreResponse summary = fetchSummaryForGame(gameId, league);
+        return summary != null ? toGameStats(summary, gameId) : new ArrayList<>();
+    }
 
-        String boxScoreUrl = String.format("%s/%s/%s/summary?event=%s",
+    private EspnBoxscoreResponse fetchSummaryForGame(int gameId, League league) {
+        String summaryUrl = String.format("%s/%s/%s/summary?event=%s",
                 espnApiProperties.getBaseUrl(),
                 league.getSport().getValue(),
                 league.getValue(),
                 gameId);
-        List<GameStat> gameStats = new ArrayList<>();
         try {
-            EspnBoxscoreResponse espnBoxscoreResponse = restTemplate.getForObject(boxScoreUrl, EspnBoxscoreResponse.class);
-
-            if (espnBoxscoreResponse != null &&
-                    espnBoxscoreResponse.getBoxscore() != null &&
-                    espnBoxscoreResponse.getBoxscore().getTeams() != null) {
-
-                gameStats = espnBoxscoreResponse.getBoxscore().getTeams().stream()
-                        .flatMap(team -> espnBoxScoreMapper.toGameStat(team, gameId).stream())
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-            }
+            return restTemplate.getForObject(summaryUrl, EspnBoxscoreResponse.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
+            return null;
         }
+    }
 
-
-        return gameStats;
+    private List<GameStat> toGameStats(EspnBoxscoreResponse summary, int gameId) {
+        if (summary.getBoxscore() == null || summary.getBoxscore().getTeams() == null) {
+            return new ArrayList<>();
+        }
+        return summary.getBoxscore().getTeams().stream()
+                .flatMap(team -> espnBoxScoreMapper.toGameStat(team, gameId).stream())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private EspnScoreboardResponse fetchGamesForUrl(String url) {

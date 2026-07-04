@@ -44,6 +44,14 @@ public class Game {
     @MapKey(name = "key")
     @JsonIgnore
     private Map<GameStatKey, GameStat> stats;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @MapKey(name = "key")
+    @JsonIgnore
+    private Map<GameLeaderKey, GameLeader> leaders;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @MapKey(name = "key")
+    @JsonIgnore
+    private Map<ScoringPlayKey, ScoringPlay> scoringPlays;
     private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
@@ -79,6 +87,30 @@ public class Game {
             newStats.forEach(stat -> {
                 this.stats.put(stat.getKey(), stat);
                 stat.setGame(this);
+            });
+        }
+    }
+
+    public void addLeaders(List<GameLeader> newLeaders) {
+        if (this.leaders == null) {
+            this.leaders = new HashMap<>();
+        }
+        if (newLeaders != null) {
+            newLeaders.forEach(leader -> {
+                this.leaders.put(leader.getKey(), leader);
+                leader.setGame(this);
+            });
+        }
+    }
+
+    public void addScoringPlays(List<ScoringPlay> newPlays) {
+        if (this.scoringPlays == null) {
+            this.scoringPlays = new HashMap<>();
+        }
+        if (newPlays != null) {
+            newPlays.forEach(play -> {
+                this.scoringPlays.put(play.getKey(), play);
+                play.setGame(this);
             });
         }
     }

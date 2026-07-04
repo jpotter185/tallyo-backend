@@ -1,6 +1,7 @@
 package com.tallyo.tallyo_backend.controller;
 
 import com.tallyo.tallyo_backend.dto.CurrentContext;
+import com.tallyo.tallyo_backend.dto.GameDetailsResponse;
 import com.tallyo.tallyo_backend.dto.GameResponse;
 import com.tallyo.tallyo_backend.dto.PageResponse;
 import com.tallyo.tallyo_backend.dto.UpdateResponse;
@@ -113,6 +114,11 @@ public class GameController {
                 pageable
         );
         return new PageResponse<>(pages.map(gameResponseMapper::toResponse));
+    }
+
+    @GetMapping("/{gameId}/details")
+    public GameDetailsResponse getGameDetails(@PathVariable int gameId) {
+        return gameServiceImpl.getGameDetails(gameId);
     }
 
     @PostMapping

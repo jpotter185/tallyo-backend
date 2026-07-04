@@ -25,6 +25,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                buildError("NOT_FOUND", ex.getMessage(), null, request)
+        );
+    }
+
     @ExceptionHandler(DateTimeException.class)
     public ResponseEntity<ApiError> handleDateTimeException(
             DateTimeException ex,
