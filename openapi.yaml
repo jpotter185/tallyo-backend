@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Tallyo Backend API
-  version: 1.1.0
+  version: 1.2.0
   description: Contract for Tallyo UI <-> Spring backend integration.
 servers:
   - url: https://api.tallyo.us
@@ -59,6 +59,38 @@ components:
         record:
           type: string
         score:
+          type: string
+        seed:
+          type: string
+        ranking:
+          type: string
+        wins:
+          type: string
+        losses:
+          type: string
+        ties:
+          type: string
+        conference:
+          type: string
+        division:
+          type: string
+        homeRecord:
+          type: string
+        roadRecord:
+          type: string
+        recordVsConference:
+          type: string
+        recordVsDivision:
+          type: string
+        pointsFor:
+          type: string
+        pointsAgainst:
+          type: string
+        pointDifferential:
+          type: string
+        streak:
+          type: string
+        winPercent:
           type: string
     TeamStats:
       type: object
@@ -193,6 +225,106 @@ components:
           type: boolean
         showInDashboard:
           type: boolean
+    StandingsTeam:
+      type: object
+      required: [id, name, abbreviation, logo, location, stats]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        abbreviation:
+          type: string
+        logo:
+          type: string
+        location:
+          type: string
+        seed:
+          type: string
+        conference:
+          type: string
+        division:
+          type: string
+        record:
+          type: string
+        differential:
+          type: string
+        stats:
+          type: object
+          additionalProperties:
+            type: string
+    StandingsGroup:
+      type: object
+      required: [groupName, teams]
+      properties:
+        groupName:
+          type: string
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandingsTeam'
+    StatLeader:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        value:
+          type: number
+        displayValue:
+          type: string
+        playerName:
+          type: string
+        playerShortName:
+          type: string
+        teamId:
+          type: integer
+    ScoringPlay:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+        teamName:
+          type: string
+        displayText:
+          type: string
+        homeScore:
+          type: integer
+        awayScore:
+          type: integer
+        scoringType:
+          type: string
+        period:
+          type: integer
+        clock:
+          type: string
+    GameDetails:
+      type: object
+      required: [gameId, leaders, scoringPlays]
+      properties:
+        gameId:
+          type: string
+        leaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatLeader'
+        scoringPlays:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoringPlay'
+    UpdateResponse:
+      type: object
+      required: [gameCount, durationMs]
+      properties:
+        gameCount:
+          type: integer
+        durationMs:
+          type: integer
     GamesPage:
       type: object
       required: [content, page, size, totalElements, totalPages, first, last]
@@ -263,6 +395,21 @@ paths:
           name: userTimeZone
           schema:
             type: string
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 100
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: id
       responses:
         '200':
           description: Paged list of games
@@ -282,6 +429,107 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+    post:
+      description: Admin backfill - re-ingest games (and optionally stats/details) from ESPN for a league/year.
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl, mls]
+        - in: query
+          name: year
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: shouldFetchStats
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Update summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/games/{gameId}/details:
+    get:
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Stat leaders and scoring plays for a game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameDetails'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/standings:
+    get:
+      parameters:
+        - in: query
+          name: league
+          required: true
+          schema:
+            type: string
+            enum: [nfl, cfb, nhl, mls]
+      responses:
+        '200':
+          description: Standings groups for the league
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandingsGroup'
+        '400':
+          description: Bad request (unknown league or standings unsupported)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '502':
+          description: Upstream provider failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /api/v1/games/current:
     get:
       parameters:
@@ -295,6 +543,33 @@ paths:
           name: userTimeZone
           schema:
             type: string
+        - in: query
+          name: year
+          schema:
+            type: integer
+        - in: query
+          name: seasonType
+          schema:
+            type: integer
+        - in: query
+          name: week
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 100
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: id
       responses:
         '200':
           description: Current games context list
@@ -340,6 +615,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/games/nhl-dates:
+    get:
+      deprecated: true
+      description: Legacy NHL-only variant of /api/v1/games/dates.
+      parameters:
+        - in: query
+          name: userTimeZone
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Available NHL game dates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: date
         '403':
           description: Forbidden
           content:
