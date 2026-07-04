@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -163,7 +165,9 @@ public class GameServiceImpl implements GameService {
             try {
                 List<Game> games = espnService.fetchGames(league, 0, false);
                 int saved = saveScheduleGames(games);
-                logger.info("Refreshed schedule for {}: saved {} of {} games", league, saved, games.size());
+                int pruned = pruneStaleScheduledGames(league, games);
+                logger.info("Refreshed schedule for {}: saved {} of {} games, pruned {} stale",
+                        league, saved, games.size(), pruned);
             } catch (Exception e) {
                 logger.error("Schedule refresh failed for {}: {}", league, e.getMessage());
             }
@@ -189,5 +193,20 @@ public class GameServiceImpl implements GameService {
                 .toList();
         gameRepository.saveAll(toSave);
         return toSave.size();
+    }
+
+    // ESPN sometimes replaces a scheduled event with a new id (common with CFB
+    // preseason placeholders), leaving the old id in our DB as a duplicate.
+    // Delete scheduled games in the refreshed window that ESPN no longer lists.
+    // An empty fetch skips pruning so a bad ESPN response can't wipe a schedule.
+    private int pruneStaleScheduledGames(League league, List<Game> fetchedGames) {
+        if (fetchedGames.isEmpty()) {
+            return 0;
+        }
+        int year = Year.now().getValue();
+        Instant windowStart = LocalDate.of(year, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant windowEnd = LocalDate.of(year + 1, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        List<Integer> fetchedIds = fetchedGames.stream().map(Game::getId).toList();
+        return gameRepository.deleteStaleScheduledGames(league, windowStart, windowEnd, fetchedIds);
     }
 }

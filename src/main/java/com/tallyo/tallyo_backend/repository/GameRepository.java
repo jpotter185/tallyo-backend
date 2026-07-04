@@ -6,16 +6,33 @@ import com.tallyo.tallyo_backend.enums.League;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findByLeague(League league);
+
+    // Removes stale scheduled games that ESPN no longer lists for the fetched
+    // window (ESPN replaces placeholder events with new ids, leaving duplicates).
+    // Restricted to STATUS_SCHEDULED so ingested scores/details are never touched.
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Game g WHERE g.league = :league " +
+            "AND g.gameStatus = 'STATUS_SCHEDULED' " +
+            "AND g.isoDate BETWEEN :windowStart AND :windowEnd " +
+            "AND g.id NOT IN :fetchedIds")
+    int deleteStaleScheduledGames(@Param("league") League league,
+                                  @Param("windowStart") Instant windowStart,
+                                  @Param("windowEnd") Instant windowEnd,
+                                  @Param("fetchedIds") Collection<Integer> fetchedIds);
 
     @Query("SELECT g FROM Game g WHERE g.league = :league " +
             "AND (:year = 0 OR g.year = :year) " +
