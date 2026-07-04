@@ -15,6 +15,23 @@ espn:
     base-url: https://site.api.espn.com/apis/site/v2/sports
     scoreboard:
       limit: 1000
+  standings:
+    urls:
+      nfl:
+        - https://cdn.espn.com/core/nfl/standings?xhr=1
+      cfb:
+        - https://cdn.espn.com/core/college-football/standings?xhr=1
+      nhl:
+        - https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings?type=0&level=3&sort=playoffseed:asc,points:desc,gamesplayed:asc,rotwins:desc
+        - https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings
+        - https://cdn.espn.com/core/nhl/standings?xhr=1&seasontype=3
+        - https://cdn.espn.com/core/nhl/standings?xhr=1&seasonType=3
+        - https://cdn.espn.com/core/nhl/standings?xhr=1&type=3
+        - https://cdn.espn.com/core/nhl/standings?xhr=1&view=wild-card
+        - https://cdn.espn.com/core/nhl/standings?xhr=1
+      mls:
+        - https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings
+        - https://cdn.espn.com/core/soccer/standings?xhr=1&league=usa.1
 
 api:
   key: ${API_KEY}

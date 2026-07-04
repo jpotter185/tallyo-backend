@@ -1,7 +1,12 @@
 package com.tallyo.tallyo_backend.service;
 
+import com.tallyo.tallyo_backend.dto.GameDetailsResponse;
+import com.tallyo.tallyo_backend.dto.ScoringPlayResponse;
+import com.tallyo.tallyo_backend.dto.StatLeaderResponse;
 import com.tallyo.tallyo_backend.entity.Game;
+import com.tallyo.tallyo_backend.entity.ScoringPlay;
 import com.tallyo.tallyo_backend.enums.League;
+import com.tallyo.tallyo_backend.exception.ResourceNotFoundException;
 import com.tallyo.tallyo_backend.repository.GameRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,12 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -52,6 +59,51 @@ public class GameServiceImpl implements GameService {
         List<Game> games = espnService.fetchGames(league, year, shouldFetchStats);
         gameRepository.saveAll(games);
         return games;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GameDetailsResponse getGameDetails(int gameId) {
+        Game game = gameRepository.findById((long) gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + gameId));
+
+        List<StatLeaderResponse> leaders = game.getLeaders() == null
+                ? List.of()
+                : game.getLeaders().values().stream()
+                .map(leader -> StatLeaderResponse.builder()
+                        .name(leader.getKey().getStatName())
+                        .displayName(leader.getDisplayName())
+                        .value(leader.getStatValue())
+                        .displayValue(leader.getDisplayValue())
+                        .playerName(leader.getPlayerName())
+                        .playerShortName(leader.getPlayerShortName())
+                        .teamId(leader.getKey().getTeamId())
+                        .build())
+                .toList();
+
+        List<ScoringPlayResponse> scoringPlays = game.getScoringPlays() == null
+                ? List.of()
+                : game.getScoringPlays().values().stream()
+                .sorted(Comparator.comparing(ScoringPlay::getSequence,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(play -> ScoringPlayResponse.builder()
+                        .id(play.getKey().getPlayId())
+                        .teamId(play.getTeamId())
+                        .teamName(play.getTeamAbbreviation())
+                        .displayText(play.getDisplayText())
+                        .homeScore(play.getHomeScore())
+                        .awayScore(play.getAwayScore())
+                        .scoringType(play.getScoringType())
+                        .period(play.getPeriod())
+                        .clock(play.getClock())
+                        .build())
+                .toList();
+
+        return GameDetailsResponse.builder()
+                .gameId(String.valueOf(gameId))
+                .leaders(leaders)
+                .scoringPlays(scoringPlays)
+                .build();
     }
 
     @Scheduled(fixedRate = 20000)

@@ -14,11 +14,16 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("currentContext");
+        return new ConcurrentMapCacheManager("currentContext", "standings");
     }
 
     @Scheduled(fixedRate = 300000) // 300,000 ms = 5 minutes
     @CacheEvict(value = "currentContext", allEntries = true)
     public void evictCurrentContextCache() {
+    }
+
+    @Scheduled(fixedRate = 1800000) // 1,800,000 ms = 30 minutes
+    @CacheEvict(value = "standings", allEntries = true)
+    public void evictStandingsCache() {
     }
 }
