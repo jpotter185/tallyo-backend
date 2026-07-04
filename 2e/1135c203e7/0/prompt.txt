@@ -1,0 +1,33 @@
+Yeah run the backfill for all leagues
+
+---
+
+<task-notification>
+<task-id>bi7ji7qut</task-id>
+<tool-use-id>toolu_016MnEr1QR1nXDp54cTD7P4y</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-jackpotter-projects-tallyo/31f69918-1324-4182-bd7e-63f6c031e965/tasks/bi7ji7qut.output</output-file>
+<status>completed</status>
+<summary>Background command "Backfill 2026 details for all leagues on prod" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>blio09jxd</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-jackpotter-projects-tallyo/31f69918-1324-4182-bd7e-63f6c031e965/tasks/blio09jxd.output</output-file>
+<status>completed</status>
+<summary>Background command "Poll prod until MLS backfill completes" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+Looking good?
+
+---
+
+All good?
+
+---
+
+I see a duplicate cfb game in week 1, the fsu vs nmsu game

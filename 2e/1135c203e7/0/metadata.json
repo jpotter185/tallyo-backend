@@ -1,0 +1,77 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "2e1135c203e7",
+  "session_id": "31f69918-1324-4182-bd7e-63f6c031e965",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-04T21:59:54.865126Z",
+  "branch": "fix/prune-stale-scheduled-games",
+  "checkpoints_count": 6,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "ccc2f45a56b6",
+  "token_usage": {
+    "input_tokens": 31018,
+    "cache_creation_tokens": 1262962,
+    "cache_read_tokens": 52190215,
+    "output_tokens": 199149,
+    "api_call_count": 234
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01Bb6GXZ5VJUouhwfFKgM1ej",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "run"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "ccc2f45a56b6",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 1139,
+        "end": 1140,
+        "entry_ids": [
+          "3e92460a-4af4-4dd0-a765-64e57c07d596"
+        ],
+        "tool_use_id": "toolu_01Bb6GXZ5VJUouhwfFKgM1ej"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Bb6GXZ5VJUouhwfFKgM1ej"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: run",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 6,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}
