@@ -1,0 +1,86 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "0648f3ad2e92",
+  "session_id": "f23e1951-437a-4e17-aa4d-3f394ba4855c",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-05T04:00:43.554884Z",
+  "branch": "fix/prune-stale-scheduled-games",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "openapi.yaml",
+    "src/main/java/com/tallyo/tallyo_backend/enums/League.java",
+    "src/main/resources/application.yml"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "25f58ab80477",
+  "token_usage": {
+    "input_tokens": 6012,
+    "cache_creation_tokens": 72700,
+    "cache_read_tokens": 2539509,
+    "output_tokens": 26109,
+    "api_call_count": 45
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01V2iNugj37eYtBMoXcrPH1r",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "verify"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "25f58ab80477",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 130,
+        "end": 131,
+        "entry_ids": [
+          "c54b9a06-4e99-4e34-8ce5-5d252e8a0e5d"
+        ],
+        "tool_use_id": "toolu_01V2iNugj37eYtBMoXcrPH1r"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01V2iNugj37eYtBMoXcrPH1r"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: verify",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-05T04:00:43.528971Z",
+    "agent_lines": 12,
+    "agent_removed": 8,
+    "human_added": 61,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 73,
+    "total_lines_changed": 81,
+    "agent_percentage": 24.691358024691358,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 6,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}

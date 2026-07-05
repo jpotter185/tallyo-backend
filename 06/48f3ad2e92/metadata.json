@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "0648f3ad2e92",
+  "strategy": "manual-commit",
+  "branch": "fix/prune-stale-scheduled-games",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "openapi.yaml",
+    "src/main/java/com/tallyo/tallyo_backend/enums/League.java",
+    "src/main/resources/application.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/06/48f3ad2e92/0/metadata.json",
+      "transcript": "/06/48f3ad2e92/0/full.jsonl",
+      "compact_transcript": "/06/48f3ad2e92/0/transcript.jsonl",
+      "content_hash": "/06/48f3ad2e92/0/content_hash.txt",
+      "prompt": "/06/48f3ad2e92/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 6012,
+    "cache_creation_tokens": 72700,
+    "cache_read_tokens": 2539509,
+    "output_tokens": 26109,
+    "api_call_count": 45
+  }
+}
