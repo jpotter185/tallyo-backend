@@ -1,0 +1,9 @@
+First, update the readme for this project
+
+---
+
+How hard would it be to add baseball? The scoring and everything is dramatically different
+
+---
+
+Can you add the mlb to the backend?
