@@ -1,0 +1,17 @@
+Awesome, thanks. Can you make changes to the frontend now? projects/tallyo
+
+---
+
+Update claude.md. Fix the api generation
+
+---
+
+What curl command can I run to force update the world cup games?
+
+---
+
+Give me the full request, including the api key
+
+---
+
+The world cup standings aren't displaying right. Within the groups they look weird

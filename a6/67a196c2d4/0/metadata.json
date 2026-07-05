@@ -1,0 +1,121 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "a667a196c2d4",
+  "session_id": "f23e1951-437a-4e17-aa4d-3f394ba4855c",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-05T04:26:13.749698Z",
+  "branch": "main",
+  "checkpoints_count": 5,
+  "save_step_count": 4,
+  "files_touched": [
+    "CLAUDE.md",
+    "src/main/java/com/tallyo/tallyo_backend/mapper/EspnStandingsMapper.java"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "41978ee1ad47",
+  "checkpoint_transcript_start": 260,
+  "transcript_lines_at_start": 260,
+  "token_usage": {
+    "input_tokens": 2194,
+    "cache_creation_tokens": 56139,
+    "cache_read_tokens": 7343729,
+    "output_tokens": 37051,
+    "api_call_count": 64
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01V2iNugj37eYtBMoXcrPH1r",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "verify"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "41978ee1ad47",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 130,
+        "end": 131,
+        "entry_ids": [
+          "c54b9a06-4e99-4e34-8ce5-5d252e8a0e5d"
+        ],
+        "tool_use_id": "toolu_01V2iNugj37eYtBMoXcrPH1r"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01V2iNugj37eYtBMoXcrPH1r"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: verify",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-05T04:26:13.717999Z",
+    "agent_lines": 13,
+    "agent_removed": 2,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 13,
+    "total_lines_changed": 15,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 1,
+      "agent_lines_removed": 1,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}
