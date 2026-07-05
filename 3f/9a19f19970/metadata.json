@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "3f9a19f19970",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/main/java/com/tallyo/tallyo_backend/enums/League.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3f/9a19f19970/0/metadata.json",
+      "transcript": "/3f/9a19f19970/0/full.jsonl",
+      "compact_transcript": "/3f/9a19f19970/0/transcript.jsonl",
+      "content_hash": "/3f/9a19f19970/0/content_hash.txt",
+      "prompt": "/3f/9a19f19970/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 13999,
+    "cache_creation_tokens": 312806,
+    "cache_read_tokens": 14667855,
+    "output_tokens": 79664,
+    "api_call_count": 138
+  }
+}
