@@ -4,11 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum League {
+    // Declaration order drives /api/v1/leagues and therefore the frontend tab order.
+    WORLD_CUP(Sport.SOCCER, "fifa.world", "World Cup", false, false, true, "date", "soccer", "home-left", false, true),
+    MLS(Sport.SOCCER, "usa.1", "MLS", false, false, true, "date", "soccer", "home-left", false, true),
     NFL(Sport.FOOTBALL, "nfl", "NFL", true, true, true, "season", "football", "away-left", true, true),
     CFB(Sport.FOOTBALL, "college-football", "CFB", true, true, true, "season", "football", "away-left", true, true),
-    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, true, "date", "hockey", "away-left", false, true),
-    MLS(Sport.SOCCER, "usa.1", "MLS", false, false, true, "date", "soccer", "home-left", false, true),
-    WORLD_CUP(Sport.SOCCER, "fifa.world", "World Cup", false, false, true, "date", "soccer", "home-left", false, true);
+    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, true, "date", "hockey", "away-left", false, true);
 
     private final String value;
     private final String label;
