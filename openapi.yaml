@@ -116,7 +116,7 @@ components:
           type: string
         league:
           type: string
-          enum: [nfl, cfb, nhl, mls]
+          enum: [nfl, cfb, nhl, mls, world_cup]
         homeTeam:
           $ref: '#/components/schemas/Team'
         awayTeam:
@@ -373,7 +373,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
         - in: query
           name: year
           schema:
@@ -437,7 +437,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
         - in: query
           name: year
           schema:
@@ -502,7 +502,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
       responses:
         '200':
           description: Standings groups for the league
@@ -538,7 +538,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
         - in: query
           name: userTimeZone
           schema:
@@ -597,7 +597,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
         - in: query
           name: userTimeZone
           schema:
@@ -654,7 +654,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls]
+            enum: [nfl, cfb, nhl, mls, world_cup]
         - in: query
           name: userTimeZone
           schema:
