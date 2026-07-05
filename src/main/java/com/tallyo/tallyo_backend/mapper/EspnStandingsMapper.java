@@ -139,11 +139,22 @@ public class EspnStandingsMapper {
                 teams.add(team);
             }
         }
-        teams.sort(Comparator.comparingInt(team -> parseLeadingInt(team.getSeed(), 100)));
+        teams.sort(Comparator.comparingInt(this::sortRank));
         return StandingsGroupResponse.builder()
                 .groupName(groupName)
                 .teams(teams)
                 .build();
+    }
+
+    // Soccer payloads (e.g. World Cup groups) arrive unsorted but carry a
+    // "rank" stat; other leagues either pre-sort entries or expose a seed.
+    private int sortRank(StandingsTeamResponse team) {
+        String rank = team.getStats() == null ? null : team.getStats().get("rank");
+        int parsedRank = parseLeadingInt(rank, 0);
+        if (parsedRank > 0) {
+            return parsedRank;
+        }
+        return parseLeadingInt(team.getSeed(), 100);
     }
 
     private StandingsTeamResponse parseTeam(JsonNode standingEntry, String conferenceName, String divisionName) {
