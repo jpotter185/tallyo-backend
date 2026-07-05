@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum Sport {
     HOCKEY("hockey"),
     FOOTBALL("football"),
-    SOCCER("soccer");
+    SOCCER("soccer"),
+    BASEBALL("baseball");
 
     private final String value;
 

@@ -7,6 +7,8 @@ Spring Boot backend for the Tallyo sports dashboard. The service ingests ESPN sc
 - Fetches game schedules, live details, scores, odds, and stats from ESPN.
 - Stores normalized games, teams, odds, and stat values in PostgreSQL.
 - Serves paginated game data for league pages.
+- Serves per-game details (box score stats, scoring plays, stat leaders).
+- Serves league standings fetched from ESPN.
 - Computes current league context, including current week/date.
 - Provides league metadata so the frontend can adjust UI behavior per sport.
 - Protects API routes with an `x-api-key` header.
@@ -58,7 +60,6 @@ The app reads configuration from environment variables.
 | `DB_USER` | Docker | PostgreSQL user used by `docker-compose.yml`. |
 | `DB_PASSWORD` | Docker | PostgreSQL password used by `docker-compose.yml`. |
 | `DDL_AUTO` | Docker | Hibernate schema behavior, for example `update`. |
-| `NGINX_CONF` | Docker optional | Nginx config path. Defaults to `./nginx/nginx.conf`. |
 
 ## Local Development
 
@@ -95,8 +96,9 @@ The included Compose setup runs:
 
 - Spring backend
 - PostgreSQL
-- Nginx
 - Dozzle log viewer
+
+`docker-compose.override.yml` publishes the app on `localhost:8080` for local development; it is not used in prod.
 
 Build and start everything:
 
@@ -146,16 +148,20 @@ Main endpoints:
 | `GET` | `/games/context` | Returns current year, season type, week, and date for a league. |
 | `GET` | `/games/dates` | Returns known game dates for a league in the requested timezone. |
 | `GET` | `/games/nhl-dates` | Legacy NHL-specific date endpoint. |
+| `GET` | `/games/{gameId}/details` | Returns box score stats, scoring plays, and stat leaders for a game. |
+| `GET` | `/standings` | Returns standings groups for a league. |
 | `POST` | `/games` | Manually fetches and stores games from ESPN. |
 
 Supported leagues are defined in `League.java`.
 
 Current supported league IDs:
 
+- `world_cup`
+- `mls`
 - `nfl`
 - `cfb`
 - `nhl`
-- `mls`
+- `mlb`
 
 ## Common Requests
 
@@ -177,6 +183,20 @@ Get games for a specific date:
 
 ```bash
 curl "http://localhost:8080/api/v1/games?league=nhl&date=2026-02-16&userTimeZone=America/New_York" \
+  -H "x-api-key: dev-secret"
+```
+
+Get details for a single game:
+
+```bash
+curl "http://localhost:8080/api/v1/games/401671789/details" \
+  -H "x-api-key: dev-secret"
+```
+
+Get standings for a league:
+
+```bash
+curl "http://localhost:8080/api/v1/standings?league=nhl" \
   -H "x-api-key: dev-secret"
 ```
 

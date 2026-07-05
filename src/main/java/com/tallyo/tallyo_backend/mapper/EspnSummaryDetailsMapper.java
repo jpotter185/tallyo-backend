@@ -12,13 +12,16 @@ import com.tallyo.tallyo_backend.model.espn.box_score.EspnBoxscoreResponse;
 import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Extracts stat leaders and scoring plays from ESPN summary payloads.
  * The summary shape varies per sport: football has top-level scoringPlays,
- * hockey has plays (filtered on scoringPlay=true), soccer has keyEvents
- * (filtered on scoringPlay=true). Leaders share one nesting across sports.
+ * hockey and baseball have plays (filtered on scoringPlay=true), soccer has
+ * keyEvents (filtered on scoringPlay=true). Leaders share one nesting across
+ * sports; baseball summaries have no top-level leaders, so none are stored.
  */
 public class EspnSummaryDetailsMapper {
 
@@ -59,11 +62,23 @@ public class EspnSummaryDetailsMapper {
             return result;
         }
         int sequence = 0;
+        Set<String> seenAtBatScores = new HashSet<>();
         for (JsonNode play : source) {
-            // Football payloads list only scoring plays; hockey/soccer list all
-            // plays/events and flag the scoring ones.
+            // Football payloads list only scoring plays; hockey/soccer/baseball
+            // list all plays/events and flag the scoring ones.
             if (league.getSport() != Sport.FOOTBALL && !play.path("scoringPlay").asBoolean(false)) {
                 continue;
+            }
+            // Baseball flags both the event play (e.g. Stolen Base) and the
+            // at-bat's Play Result for the same run; keep one per at-bat score
+            // state so distinct runs within an at-bat still both survive.
+            String atBatId = textOrNull(play.path("atBatId"));
+            if (atBatId != null) {
+                String dedupeKey = atBatId + "|" + intOrNull(play.path("homeScore"))
+                        + "|" + intOrNull(play.path("awayScore"));
+                if (!seenAtBatScores.add(dedupeKey)) {
+                    continue;
+                }
             }
             String playId = textOrNull(play.path("id"));
             if (playId == null) {
@@ -89,7 +104,7 @@ public class EspnSummaryDetailsMapper {
     private JsonNode scoringPlaySource(EspnBoxscoreResponse summary, League league) {
         return switch (league.getSport()) {
             case FOOTBALL -> summary.getScoringPlays();
-            case HOCKEY -> summary.getPlays();
+            case HOCKEY, BASEBALL -> summary.getPlays();
             case SOCCER -> summary.getKeyEvents();
         };
     }

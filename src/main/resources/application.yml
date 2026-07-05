@@ -35,6 +35,9 @@ espn:
       world_cup:
         - https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings
         - https://cdn.espn.com/core/soccer/standings?xhr=1&league=fifa.world
+      mlb:
+        - https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings
+        - https://cdn.espn.com/core/mlb/standings?xhr=1
 
 api:
   key: ${API_KEY}
