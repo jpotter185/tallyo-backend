@@ -1,0 +1,87 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "1a83408655bc",
+  "session_id": "252dfa3f-6043-4780-9532-b5c1885d19eb",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-05T15:09:52.360355Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/main/resources/application.yml"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "5d0448a68a77",
+  "checkpoint_transcript_start": 387,
+  "transcript_lines_at_start": 387,
+  "token_usage": {
+    "input_tokens": 2467,
+    "cache_creation_tokens": 74560,
+    "cache_read_tokens": 9362170,
+    "output_tokens": 32646,
+    "api_call_count": 54
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01JSVTkNg5yvukn5fdnmnJ4E",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "verify"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "5d0448a68a77",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 235,
+        "end": 236,
+        "entry_ids": [
+          "bf81acd1-963e-45ca-b237-420bf464e815"
+        ],
+        "tool_use_id": "toolu_01JSVTkNg5yvukn5fdnmnJ4E"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01JSVTkNg5yvukn5fdnmnJ4E"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: verify",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-05T15:09:52.185Z",
+    "agent_lines": 1,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1,
+    "total_lines_changed": 1,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}
