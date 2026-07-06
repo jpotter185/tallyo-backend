@@ -1,0 +1,5 @@
+Hi. For baseball, do we save individual player splits? I'd like to display the player status during a game (like avg, ab, r, h, hr, etc.)
+
+---
+
+So first, I want to add the current at bat- the balls, strikes, and outs

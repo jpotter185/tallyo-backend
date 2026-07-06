@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "bba58851a47e",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "openapi.yaml",
+    "src/main/java/com/tallyo/tallyo_backend/dto/GameResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/Game.java",
+    "src/main/java/com/tallyo/tallyo_backend/mapper/EspnGameMapper.java",
+    "src/main/java/com/tallyo/tallyo_backend/mapper/GameResponseMapper.java",
+    "src/main/java/com/tallyo/tallyo_backend/model/espn/scoreboard/Situation.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bb/a58851a47e/0/metadata.json",
+      "transcript": "/bb/a58851a47e/0/full.jsonl",
+      "compact_transcript": "/bb/a58851a47e/0/transcript.jsonl",
+      "content_hash": "/bb/a58851a47e/0/content_hash.txt",
+      "prompt": "/bb/a58851a47e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 3899,
+    "cache_creation_tokens": 40261,
+    "cache_read_tokens": 929043,
+    "output_tokens": 10502,
+    "api_call_count": 24
+  }
+}
