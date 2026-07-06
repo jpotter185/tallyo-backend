@@ -17,5 +17,8 @@ public class Situation {
     private String possessionText;
     private Integer homeTimeouts;
     private Integer awayTimeouts;
+    private Integer balls;
+    private Integer strikes;
+    private Integer outs;
     private LastPlay lastPlay;
 }

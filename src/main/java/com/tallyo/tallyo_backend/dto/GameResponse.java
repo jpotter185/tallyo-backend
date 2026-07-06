@@ -30,6 +30,9 @@ public class GameResponse {
     private String possessionTeamId;
     private Integer homeTimeouts;
     private Integer awayTimeouts;
+    private Integer balls;
+    private Integer strikes;
+    private Integer outs;
     private String winner;
     private String headline;
     private GameOddResponse gameOdd;

@@ -157,6 +157,18 @@ components:
           type: integer
         awayTimeouts:
           type: integer
+        balls:
+          type: integer
+          nullable: true
+          description: Current at-bat ball count (baseball, live games only)
+        strikes:
+          type: integer
+          nullable: true
+          description: Current at-bat strike count (baseball, live games only)
+        outs:
+          type: integer
+          nullable: true
+          description: Outs in the current half-inning (baseball, live games only)
         winner:
           type: string
         headline:

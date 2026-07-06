@@ -72,6 +72,9 @@ public class Game {
     private String possessionTeamId;
     private Integer homeTimeouts;
     private Integer awayTimeouts;
+    private Integer balls;
+    private Integer strikes;
+    private Integer outs;
     private int winner;
     private String headline;
     private String gameStatus;
