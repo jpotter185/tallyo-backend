@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "2a3f0a824396",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "openapi.yaml",
+    "src/main/java/com/tallyo/tallyo_backend/dto/GameDetailsResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/LeagueMetadataResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/PlayerStatGroupResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/PlayerStatLineResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/Game.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/GamePlayer.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/GamePlayerKey.java",
+    "src/main/java/com/tallyo/tallyo_backend/enums/League.java",
+    "src/main/java/com/tallyo/tallyo_backend/mapper/EspnSummaryDetailsMapper.java",
+    "src/main/java/com/tallyo/tallyo_backend/model/espn/box_score/Boxscore.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/2a/3f0a824396/0/metadata.json",
+      "transcript": "/2a/3f0a824396/0/full.jsonl",
+      "compact_transcript": "/2a/3f0a824396/0/transcript.jsonl",
+      "content_hash": "/2a/3f0a824396/0/content_hash.txt",
+      "prompt": "/2a/3f0a824396/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1330,
+    "cache_creation_tokens": 173622,
+    "cache_read_tokens": 4840793,
+    "output_tokens": 39740,
+    "api_call_count": 54
+  }
+}

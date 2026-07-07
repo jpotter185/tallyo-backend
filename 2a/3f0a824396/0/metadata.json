@@ -1,0 +1,110 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "2a3f0a824396",
+  "session_id": "edc717e6-2a8b-49cb-bce3-b6fb99b00adb",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-07T02:18:25.435855Z",
+  "branch": "main",
+  "checkpoints_count": 5,
+  "save_step_count": 2,
+  "files_touched": [
+    "openapi.yaml",
+    "src/main/java/com/tallyo/tallyo_backend/dto/GameDetailsResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/LeagueMetadataResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/PlayerStatGroupResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/dto/PlayerStatLineResponse.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/Game.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/GamePlayer.java",
+    "src/main/java/com/tallyo/tallyo_backend/entity/GamePlayerKey.java",
+    "src/main/java/com/tallyo/tallyo_backend/enums/League.java",
+    "src/main/java/com/tallyo/tallyo_backend/mapper/EspnSummaryDetailsMapper.java",
+    "src/main/java/com/tallyo/tallyo_backend/model/espn/box_score/Boxscore.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "5631ec26ca9b",
+  "checkpoint_transcript_start": 151,
+  "transcript_lines_at_start": 151,
+  "token_usage": {
+    "input_tokens": 1330,
+    "cache_creation_tokens": 173622,
+    "cache_read_tokens": 4840793,
+    "output_tokens": 39740,
+    "api_call_count": 54
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01SRFS4k4GpVJ8WjWVRZkamw",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "verify"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "5631ec26ca9b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 112,
+        "end": 113,
+        "entry_ids": [
+          "f4019c3c-83e6-426a-9d3c-afcc7dfd230e"
+        ],
+        "tool_use_id": "toolu_01SRFS4k4GpVJ8WjWVRZkamw"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01SRFS4k4GpVJ8WjWVRZkamw"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: verify",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 7
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-07T02:18:25.404527Z",
+    "agent_lines": 312,
+    "agent_removed": 9,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 312,
+    "total_lines_changed": 321,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 291,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}

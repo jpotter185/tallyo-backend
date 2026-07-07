@@ -1,0 +1,17 @@
+Awesome, I committed that. Can you update the frontend to display balls and strikes now?
+
+---
+
+So it doesn't show on the compact game card?
+
+---
+
+Just show the number of outs on the compact game card
+
+---
+
+Looks great! Now can we add player status for MLB? So for each game that is final or in progress, show their game stats. For scheduled games, show their season stats
+
+---
+
+Can this handle football and soccer too or just baseball? I want to keep it flexible
