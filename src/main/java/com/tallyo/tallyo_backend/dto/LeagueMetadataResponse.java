@@ -20,6 +20,7 @@ public class LeagueMetadataResponse {
     private String teamOrder;
     private boolean supportsOdds;
     private boolean supportsLiveDetails;
+    private boolean supportsPlayerStats;
     private boolean showInHeader;
     private boolean showInDashboard;
 
@@ -36,6 +37,7 @@ public class LeagueMetadataResponse {
                 .teamOrder(league.getTeamOrder())
                 .supportsOdds(league.isSupportsOdds())
                 .supportsLiveDetails(league.isSupportsLiveDetails())
+                .supportsPlayerStats(league.isSupportsPlayerStats())
                 .showInHeader(true)
                 .showInDashboard(true)
                 .build();

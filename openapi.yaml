@@ -206,7 +206,7 @@ components:
           type: integer
     LeagueMetadata:
       type: object
-      required: [id, label, path, supportsStandings, contextMode, supportsYearFilter, supportsWeekFilter, statsProfile, teamOrder, supportsOdds, supportsLiveDetails, showInHeader, showInDashboard]
+      required: [id, label, path, supportsStandings, contextMode, supportsYearFilter, supportsWeekFilter, statsProfile, teamOrder, supportsOdds, supportsLiveDetails, supportsPlayerStats, showInHeader, showInDashboard]
       properties:
         id:
           type: string
@@ -232,6 +232,8 @@ components:
         supportsOdds:
           type: boolean
         supportsLiveDetails:
+          type: boolean
+        supportsPlayerStats:
           type: boolean
         showInHeader:
           type: boolean
@@ -315,9 +317,50 @@ components:
           type: integer
         clock:
           type: string
+    PlayerStatLine:
+      type: object
+      required: [playerId, stats]
+      properties:
+        playerId:
+          type: string
+        playerName:
+          type: string
+        playerShortName:
+          type: string
+        position:
+          type: string
+        batOrder:
+          type: integer
+        starter:
+          type: boolean
+        stats:
+          type: array
+          description: Values aligned index-for-index with the group's labels array
+          items:
+            type: string
+    PlayerStatGroup:
+      type: object
+      required: [teamId, category, labels, players]
+      description: >-
+        One per-player stat table per team and category (e.g. batting/pitching).
+        For in-progress and final games the values are game stats; for scheduled
+        games they are the projected lineup's season stats (column labels differ).
+      properties:
+        teamId:
+          type: integer
+        category:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerStatLine'
     GameDetails:
       type: object
-      required: [gameId, leaders, scoringPlays]
+      required: [gameId, leaders, scoringPlays, players]
       properties:
         gameId:
           type: string
@@ -329,6 +372,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScoringPlay'
+        players:
+          type: array
+          description: Per-player stat tables; empty unless the league supports player stats
+          items:
+            $ref: '#/components/schemas/PlayerStatGroup'
     UpdateResponse:
       type: object
       required: [gameCount, durationMs]

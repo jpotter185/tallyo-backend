@@ -13,4 +13,5 @@ public class GameDetailsResponse {
     private String gameId;
     private List<StatLeaderResponse> leaders;
     private List<ScoringPlayResponse> scoringPlays;
+    private List<PlayerStatGroupResponse> players;
 }

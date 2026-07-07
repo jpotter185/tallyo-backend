@@ -5,12 +5,12 @@ import lombok.Getter;
 @Getter
 public enum League {
     // Declaration order drives /api/v1/leagues and therefore the frontend tab order.
-    WORLD_CUP(Sport.SOCCER, "fifa.world", "WC", false, false, true, "date", "soccer", "home-left", false, true),
-    MLS(Sport.SOCCER, "usa.1", "MLS", false, false, true, "date", "soccer", "home-left", false, true),
-    NFL(Sport.FOOTBALL, "nfl", "NFL", true, true, true, "season", "football", "away-left", true, true),
-    CFB(Sport.FOOTBALL, "college-football", "CFB", true, true, true, "season", "football", "away-left", true, true),
-    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, true, "date", "hockey", "away-left", false, true),
-    MLB(Sport.BASEBALL, "mlb", "MLB", false, false, true, "date", "baseball", "away-left", true, true);
+    WORLD_CUP(Sport.SOCCER, "fifa.world", "WC", false, false, true, "date", "soccer", "home-left", false, true, false),
+    MLS(Sport.SOCCER, "usa.1", "MLS", false, false, true, "date", "soccer", "home-left", false, true, false),
+    NFL(Sport.FOOTBALL, "nfl", "NFL", true, true, true, "season", "football", "away-left", true, true, false),
+    CFB(Sport.FOOTBALL, "college-football", "CFB", true, true, true, "season", "football", "away-left", true, true, false),
+    NHL(Sport.HOCKEY, "nhl", "NHL", false, false, true, "date", "hockey", "away-left", false, true, false),
+    MLB(Sport.BASEBALL, "mlb", "MLB", false, false, true, "date", "baseball", "away-left", true, true, true);
 
     private final String value;
     private final String label;
@@ -23,6 +23,7 @@ public enum League {
     private final String teamOrder;
     private final boolean supportsOdds;
     private final boolean supportsLiveDetails;
+    private final boolean supportsPlayerStats;
 
     League(Sport sport,
            String value,
@@ -34,7 +35,8 @@ public enum League {
            String statsProfile,
            String teamOrder,
            boolean supportsOdds,
-           boolean supportsLiveDetails) {
+           boolean supportsLiveDetails,
+           boolean supportsPlayerStats) {
         this.value = value;
         this.label = label;
         this.sport = sport;
@@ -46,6 +48,7 @@ public enum League {
         this.teamOrder = teamOrder;
         this.supportsOdds = supportsOdds;
         this.supportsLiveDetails = supportsLiveDetails;
+        this.supportsPlayerStats = supportsPlayerStats;
     }
 
     public String getId() {

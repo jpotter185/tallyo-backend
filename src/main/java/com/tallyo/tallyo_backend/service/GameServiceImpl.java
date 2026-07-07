@@ -1,9 +1,12 @@
 package com.tallyo.tallyo_backend.service;
 
 import com.tallyo.tallyo_backend.dto.GameDetailsResponse;
+import com.tallyo.tallyo_backend.dto.PlayerStatGroupResponse;
+import com.tallyo.tallyo_backend.dto.PlayerStatLineResponse;
 import com.tallyo.tallyo_backend.dto.ScoringPlayResponse;
 import com.tallyo.tallyo_backend.dto.StatLeaderResponse;
 import com.tallyo.tallyo_backend.entity.Game;
+import com.tallyo.tallyo_backend.entity.GamePlayer;
 import com.tallyo.tallyo_backend.entity.ScoringPlay;
 import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.exception.ResourceNotFoundException;
@@ -25,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +116,51 @@ public class GameServiceImpl implements GameService {
                 .gameId(String.valueOf(gameId))
                 .leaders(leaders)
                 .scoringPlays(scoringPlays)
+                .players(toPlayerStatGroups(game))
                 .build();
+    }
+
+    // Regroups flat GamePlayer rows into one table per team+category, restoring
+    // ESPN's lineup order and hoisting the (per-group identical) labels.
+    private List<PlayerStatGroupResponse> toPlayerStatGroups(Game game) {
+        if (game.getPlayers() == null || game.getPlayers().isEmpty()) {
+            return List.of();
+        }
+        Map<Integer, Map<String, List<GamePlayer>>> grouped = game.getPlayers().values().stream()
+                .collect(Collectors.groupingBy(player -> player.getKey().getTeamId(),
+                        Collectors.groupingBy(player -> player.getKey().getCategory())));
+
+        List<PlayerStatGroupResponse> result = new ArrayList<>();
+        grouped.forEach((teamId, byCategory) -> byCategory.forEach((category, players) -> {
+            List<GamePlayer> ordered = players.stream()
+                    .sorted(Comparator.comparing(GamePlayer::getDisplayOrder,
+                            Comparator.nullsLast(Comparator.naturalOrder())))
+                    .toList();
+            result.add(PlayerStatGroupResponse.builder()
+                    .teamId(teamId)
+                    .category(category)
+                    .labels(splitPipes(ordered.get(0).getStatLabels()))
+                    .players(ordered.stream()
+                            .map(player -> PlayerStatLineResponse.builder()
+                                    .playerId(player.getKey().getPlayerId())
+                                    .playerName(player.getPlayerName())
+                                    .playerShortName(player.getPlayerShortName())
+                                    .position(player.getPosition())
+                                    .batOrder(player.getBatOrder())
+                                    .starter(player.getStarter())
+                                    .stats(splitPipes(player.getStatValues()))
+                                    .build())
+                            .toList())
+                    .build());
+        }));
+        // Deterministic order: batting before pitching, then by team id.
+        result.sort(Comparator.comparing(PlayerStatGroupResponse::getCategory)
+                .thenComparing(PlayerStatGroupResponse::getTeamId));
+        return result;
+    }
+
+    private List<String> splitPipes(String joined) {
+        return joined == null ? List.of() : List.of(joined.split("\\|", -1));
     }
 
     @Scheduled(fixedRate = 20000)

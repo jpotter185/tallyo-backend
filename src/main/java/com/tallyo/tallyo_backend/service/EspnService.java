@@ -73,6 +73,9 @@ public class EspnService {
             game.addStats(toGameStats(summary, game.getId()));
             game.addLeaders(espnSummaryDetailsMapper.toLeaders(summary, game.getId()));
             game.addScoringPlays(espnSummaryDetailsMapper.toScoringPlays(summary, league, game));
+            if (league.isSupportsPlayerStats()) {
+                game.addPlayers(espnSummaryDetailsMapper.toPlayers(summary, game.getId()));
+            }
         } catch (Exception e) {
             logger.warn("Could not fetch stats for game {}: {}",
                     game.getId(), e.getMessage());

@@ -52,6 +52,10 @@ public class Game {
     @MapKey(name = "key")
     @JsonIgnore
     private Map<ScoringPlayKey, ScoringPlay> scoringPlays;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @MapKey(name = "key")
+    @JsonIgnore
+    private Map<GamePlayerKey, GamePlayer> players;
     private String awayRecordAtTimeOfGame;
     private int week;
     private int seasonType;
@@ -102,6 +106,18 @@ public class Game {
             newLeaders.forEach(leader -> {
                 this.leaders.put(leader.getKey(), leader);
                 leader.setGame(this);
+            });
+        }
+    }
+
+    public void addPlayers(List<GamePlayer> newPlayers) {
+        if (this.players == null) {
+            this.players = new HashMap<>();
+        }
+        if (newPlayers != null) {
+            newPlayers.forEach(player -> {
+                this.players.put(player.getKey(), player);
+                player.setGame(this);
             });
         }
     }

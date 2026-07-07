@@ -3,6 +3,8 @@ package com.tallyo.tallyo_backend.mapper;
 import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.entity.GameLeader;
 import com.tallyo.tallyo_backend.entity.GameLeaderKey;
+import com.tallyo.tallyo_backend.entity.GamePlayer;
+import com.tallyo.tallyo_backend.entity.GamePlayerKey;
 import com.tallyo.tallyo_backend.entity.ScoringPlay;
 import com.tallyo.tallyo_backend.entity.ScoringPlayKey;
 import com.tallyo.tallyo_backend.entity.Team;
@@ -53,6 +55,86 @@ public class EspnSummaryDetailsMapper {
             }
         }
         return result;
+    }
+
+    // Parses boxscore.players: per team, per stat group (batting/pitching), a
+    // labels array plus one stats array per athlete. Live/final games carry game
+    // stats; scheduled games carry the projected lineup with season stats. Both
+    // are stored verbatim — the columns differ, so labels are stored per row.
+    public List<GamePlayer> toPlayers(EspnBoxscoreResponse summary, int gameId) {
+        List<GamePlayer> result = new ArrayList<>();
+        if (summary.getBoxscore() == null) {
+            return result;
+        }
+        JsonNode teamBlocks = summary.getBoxscore().getPlayers();
+        if (teamBlocks == null || !teamBlocks.isArray()) {
+            return result;
+        }
+        for (JsonNode teamBlock : teamBlocks) {
+            Integer teamId = intOrNull(teamBlock.path("team").path("id"));
+            if (teamId == null) {
+                continue;
+            }
+            for (JsonNode statGroup : teamBlock.path("statistics")) {
+                String category = textOrNull(statGroup.path("type"));
+                String labels = joinValues(statGroup.path("labels"));
+                if (category == null || labels == null) {
+                    continue;
+                }
+                int displayOrder = 0;
+                for (JsonNode athleteEntry : statGroup.path("athletes")) {
+                    String playerId = textOrNull(athleteEntry.path("athlete").path("id"));
+                    String stats = joinValues(athleteEntry.path("stats"));
+                    if (playerId == null || stats == null) {
+                        continue;
+                    }
+                    JsonNode athlete = athleteEntry.path("athlete");
+                    result.add(GamePlayer.builder()
+                            .key(new GamePlayerKey(gameId, teamId, playerId, category))
+                            .playerName(fullName(athlete))
+                            .playerShortName(shortName(athlete))
+                            .position(textOrNull(athleteEntry.path("position").path("abbreviation")))
+                            .batOrder(intOrNull(athleteEntry.path("batOrder")))
+                            .starter(athleteEntry.path("starter").asBoolean(false))
+                            .displayOrder(displayOrder++)
+                            .statLabels(labels)
+                            .statValues(stats)
+                            .build());
+                }
+            }
+        }
+        return result;
+    }
+
+    // Baseball/hockey athletes carry fullName/shortName; football only has
+    // firstName/lastName/displayName, so fall back and derive "F. Last".
+    private String fullName(JsonNode athlete) {
+        String fullName = textOrNull(athlete.path("fullName"));
+        return fullName != null ? fullName : textOrNull(athlete.path("displayName"));
+    }
+
+    private String shortName(JsonNode athlete) {
+        String shortName = textOrNull(athlete.path("shortName"));
+        if (shortName != null) {
+            return shortName;
+        }
+        String firstName = textOrNull(athlete.path("firstName"));
+        String lastName = textOrNull(athlete.path("lastName"));
+        if (firstName != null && lastName != null) {
+            return firstName.charAt(0) + ". " + lastName;
+        }
+        return textOrNull(athlete.path("displayName"));
+    }
+
+    private String joinValues(JsonNode arrayNode) {
+        if (arrayNode == null || !arrayNode.isArray() || arrayNode.isEmpty()) {
+            return null;
+        }
+        List<String> values = new ArrayList<>();
+        for (JsonNode value : arrayNode) {
+            values.add(value.isValueNode() ? value.asText() : "");
+        }
+        return String.join("|", values);
     }
 
     public List<ScoringPlay> toScoringPlays(EspnBoxscoreResponse summary, League league, Game game) {
