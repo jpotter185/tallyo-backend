@@ -29,6 +29,8 @@ public class LeagueConstraintSync {
 
         refreshConstraint("teams", "league", "teams_league_check", allowed);
         refreshConstraint("games", "league", "games_league_check", allowed);
+        refreshConstraint("team_injuries", "league", "team_injuries_league_check", allowed);
+        refreshConstraint("team_qb_depth_charts", "league", "team_qb_depth_charts_league_check", allowed);
     }
 
     private void refreshConstraint(String table, String column, String constraintName, String allowedValuesSql) {

@@ -13,6 +13,7 @@ spring:
 espn:
   api:
     base-url: https://site.api.espn.com/apis/site/v2/sports
+    core-base-url: https://sports.core.api.espn.com/v2/sports
     scoreboard:
       # ESPN silently falls back to a 25-event default when limit is too large
       # (confirmed: limit=1000 -> 25 events, limit=500 -> full real count) --

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 public class EspnApiProperties {
 
     private String baseUrl;
+    // sports.core.api.espn.com: resources the site API doesn't expose (e.g. depth charts).
+    private String coreBaseUrl;
     private Scoreboard scoreboard = new Scoreboard();
 
     @Data
