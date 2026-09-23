@@ -17,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -105,34 +104,30 @@ public class EspnService {
         return games;
     }
 
-    // ESPN silently caps scoreboard responses at 1000 events (larger limits fall
-    // back to a 25-event default), which truncates season-long fetches for
-    // high-volume leagues like MLB (~2900 games/year). When a response fills the
-    // limit, bisect the date range and re-fetch each half.
+    // ESPN's scoreboard endpoint rejects "dates=START-END" range syntax outright
+    // (see fetchGames(String, String, boolean) above), so a season backfill has
+    // to walk day by day too. A single day never comes close to the 1000-event
+    // cap that used to require bisecting, so that logic is no longer needed.
     private List<Game> fetchGamesForRange(League league, LocalDate startDate, LocalDate endDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         int limit = espnApiProperties.getScoreboard().getLimit();
-        String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%s-%s",
-                espnApiProperties.getBaseUrl(),
-                league.getSport().getValue(),
-                league.getValue(),
-                limit,
-                startDate.format(formatter),
-                endDate.format(formatter));
-        EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
-        if (espnScoreboardResponse == null || espnScoreboardResponse.getEvents() == null) {
-            return new ArrayList<>();
+        Map<Integer, Game> gamesById = new LinkedHashMap<>();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%s",
+                    espnApiProperties.getBaseUrl(),
+                    league.getSport().getValue(),
+                    league.getValue(),
+                    limit,
+                    date.format(formatter));
+            EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
+            if (espnScoreboardResponse != null && espnScoreboardResponse.getEvents() != null) {
+                espnScoreboardResponse.getEvents().stream()
+                        .map(event -> espnGameMapper.toGame(event, league))
+                        .filter(Objects::nonNull)
+                        .forEach(game -> gamesById.put(game.getId(), game));
+            }
         }
-        if (espnScoreboardResponse.getEvents().size() >= limit && startDate.isBefore(endDate)) {
-            LocalDate midDate = startDate.plusDays(ChronoUnit.DAYS.between(startDate, endDate) / 2);
-            List<Game> games = new ArrayList<>(fetchGamesForRange(league, startDate, midDate));
-            games.addAll(fetchGamesForRange(league, midDate.plusDays(1), endDate));
-            return games;
-        }
-        return espnScoreboardResponse.getEvents().stream()
-                .map(event -> espnGameMapper.toGame(event, league))
-                .filter(Objects::nonNull)
-                .toList();
+        return new ArrayList<>(gamesById.values());
     }
 
     public List<GameStat> fetchStatsForGame(int gameId, League league) {
