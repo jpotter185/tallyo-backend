@@ -14,7 +14,11 @@ espn:
   api:
     base-url: https://site.api.espn.com/apis/site/v2/sports
     scoreboard:
-      limit: 1000
+      # ESPN silently falls back to a 25-event default when limit is too large
+      # (confirmed: limit=1000 -> 25 events, limit=500 -> full real count) --
+      # 500 is comfortably above any single day's real game count across our
+      # leagues while staying under whatever threshold triggers the fallback.
+      limit: 500
   standings:
     urls:
       nfl:
