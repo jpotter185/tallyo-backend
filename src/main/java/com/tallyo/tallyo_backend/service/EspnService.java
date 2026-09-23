@@ -19,7 +19,9 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -41,27 +43,37 @@ public class EspnService {
         this.espnApiProperties = espnApiProperties;
     }
 
+    // ESPN's scoreboard endpoint now rejects the "dates=START-END" range syntax
+    // outright (400 "Failed to get events endpoint.") even for a single-day
+    // range like "X-X" -- only a bare "dates=X" is accepted. Query each day in
+    // [startDate, endDate] separately and merge, deduping by game id in case a
+    // game is returned from more than one day's scoreboard.
     public List<Game> fetchGames(League league, String startDate, String endDate, boolean shouldFetchStats) {
-        String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%s-%s",
-                espnApiProperties.getBaseUrl(),
-                league.getSport().getValue(),
-                league.getValue(),
-                espnApiProperties.getScoreboard().getLimit(),
-                startDate,
-                endDate);
-        EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
-        List<Game> games = new ArrayList<>();
-        if (espnScoreboardResponse != null) {
-            games = espnScoreboardResponse.getEvents().stream()
-                    .map(event -> espnGameMapper.toGame(event, league))
-                    .filter(Objects::nonNull)
-                    .toList();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+
+        Map<Integer, Game> gamesById = new LinkedHashMap<>();
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            String gamesUrl = String.format("%s/%s/%s/scoreboard?limit=%d&dates=%s",
+                    espnApiProperties.getBaseUrl(),
+                    league.getSport().getValue(),
+                    league.getValue(),
+                    espnApiProperties.getScoreboard().getLimit(),
+                    date.format(formatter));
+            EspnScoreboardResponse espnScoreboardResponse = fetchGamesForUrl(gamesUrl);
+            if (espnScoreboardResponse != null) {
+                espnScoreboardResponse.getEvents().stream()
+                        .map(event -> espnGameMapper.toGame(event, league))
+                        .filter(Objects::nonNull)
+                        .forEach(game -> gamesById.put(game.getId(), game));
+            }
         }
+        List<Game> games = new ArrayList<>(gamesById.values());
         if (shouldFetchStats) {
             games.forEach(game -> attachStatsToGame(game, league));
         }
         return games;
-
     }
 
     private void attachStatsToGame(Game game, League league) {
