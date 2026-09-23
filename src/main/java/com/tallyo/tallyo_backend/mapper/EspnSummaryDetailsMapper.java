@@ -76,7 +76,12 @@ public class EspnSummaryDetailsMapper {
                 continue;
             }
             for (JsonNode statGroup : teamBlock.path("statistics")) {
+                // Baseball labels groups by "type" (batting/pitching); football only
+                // has "name" (passing/rushing/receiving/...).
                 String category = textOrNull(statGroup.path("type"));
+                if (category == null) {
+                    category = textOrNull(statGroup.path("name"));
+                }
                 String labels = joinValues(statGroup.path("labels"));
                 if (category == null || labels == null) {
                     continue;
@@ -95,7 +100,9 @@ public class EspnSummaryDetailsMapper {
                             .playerShortName(shortName(athlete))
                             .position(textOrNull(athleteEntry.path("position").path("abbreviation")))
                             .batOrder(intOrNull(athleteEntry.path("batOrder")))
-                            .starter(athleteEntry.path("starter").asBoolean(false))
+                            // Football athletes carry no starter flag; null (not false) keeps
+                            // the frontend from rendering every row as a bench player.
+                            .starter(athleteEntry.has("starter") ? athleteEntry.path("starter").asBoolean() : null)
                             .displayOrder(displayOrder++)
                             .statLabels(labels)
                             .statValues(stats)
