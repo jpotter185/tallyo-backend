@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Tallyo Backend API
-  version: 1.2.0
+  version: 1.3.0
   description: Contract for Tallyo UI <-> Spring backend integration.
 servers:
   - url: https://api.tallyo.us
@@ -116,7 +116,7 @@ components:
           type: string
         league:
           type: string
-          enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+          enum: [nfl, cfb, nhl, mls, mlb]
         homeTeam:
           $ref: '#/components/schemas/Team'
         awayTeam:
@@ -433,7 +433,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
         - in: query
           name: year
           schema:
@@ -497,7 +497,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
         - in: query
           name: year
           schema:
@@ -562,7 +562,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
       responses:
         '200':
           description: Standings groups for the league
@@ -598,7 +598,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
         - in: query
           name: userTimeZone
           schema:
@@ -657,7 +657,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
         - in: query
           name: userTimeZone
           schema:
@@ -714,7 +714,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [nfl, cfb, nhl, mls, world_cup, mlb]
+            enum: [nfl, cfb, nhl, mls, mlb]
         - in: query
           name: userTimeZone
           schema:

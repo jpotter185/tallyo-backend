@@ -146,7 +146,7 @@ public class EspnStandingsMapper {
                 .build();
     }
 
-    // Soccer payloads (e.g. World Cup groups) arrive unsorted but carry a
+    // Soccer payloads (e.g. MLS conference groups) arrive unsorted but carry a
     // "rank" stat; other leagues either pre-sort entries or expose a seed.
     private int sortRank(StandingsTeamResponse team) {
         String rank = team.getStats() == null ? null : team.getStats().get("rank");

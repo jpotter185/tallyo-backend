@@ -174,23 +174,24 @@ public class GameServiceImpl implements GameService {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            String yesterday = LocalDate.now().minusDays(1).format(formatter);
-            String today = LocalDate.now().format(formatter);
-            int updatedGameCount = 0;
-            for (League league : League.values()) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String yesterday = LocalDate.now().minusDays(1).format(formatter);
+        String today = LocalDate.now().format(formatter);
+        int updatedGameCount = 0;
+        // Each league is isolated so one league's ESPN failure (rate limiting,
+        // upstream errors, etc.) can't starve the rest of the leagues of updates.
+        for (League league : League.values()) {
+            try {
                 List<Game> games = espnService.fetchGames(league, yesterday, today, true);
                 gameRepository.saveAll(games);
                 updatedGameCount += games.size();
+            } catch (Exception e) {
+                logger.error("Error updating games for league {}:", league, e);
             }
-            logger.info("Finished updating games for today, updated {} games in {}ms ",
-                    updatedGameCount,
-                    System.currentTimeMillis() - startTime);
-        } catch (Exception e) {
-            logger.error("Error updating games:");
-            logger.error(e.getMessage());
         }
+        logger.info("Finished updating games for today, updated {} games in {}ms ",
+                updatedGameCount,
+                System.currentTimeMillis() - startTime);
     }
 
     @EventListener(ApplicationReadyEvent.class)
