@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Tallyo Backend API
-  version: 1.5.0
+  version: 1.6.0
   description: Contract for Tallyo UI <-> Spring backend integration.
 servers:
   - url: https://api.tallyo.us
@@ -528,6 +528,33 @@ components:
 security:
   - ApiKeyAuth: []
 paths:
+  /mcp:
+    post:
+      description: >-
+        MCP server (Model Context Protocol, stateless streamable HTTP, JSON-RPC 2.0) for AI
+        clients such as claude.ai and Claude Code. Read-only tools: list_leagues, get_context,
+        get_current_games, find_games, get_game_details, get_standings, get_injuries,
+        get_game_dates. Not used by the frontend; see com.tallyo.tallyo_backend.mcp.
+      security:
+        - KeycloakOAuth: ['tallyo:read']
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON-RPC 2.0 request (initialize, tools/list, tools/call)
+      responses:
+        '200':
+          description: JSON-RPC 2.0 response
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token; WWW-Authenticate resource_metadata points to the metadata endpoint
+        '403':
+          description: Valid token without the tallyo:read scope or the tallyo-backend group
   /mcp/whoami:
     get:
       description: >-

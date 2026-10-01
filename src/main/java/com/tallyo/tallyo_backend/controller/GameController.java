@@ -101,18 +101,7 @@ public class GameController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
 
         CurrentContext context = calendarService.getCurrentContext(leagueEnum, userTimeZone);
-        int actualYear = context.getYear();
-        int actualSeasonType = context.getSeasonType();
-        String dateFilter = "date".equals(leagueEnum.getContextMode()) ? context.getDate() : "";
-        Page<Game> pages = gameServiceImpl.getGames(
-                leagueEnum,
-                leagueEnum.isSupportsYearFilter() ? actualYear : 0,
-                actualSeasonType,
-                leagueEnum.isSupportsWeekFilter() ? context.getWeek() : 0,
-                dateFilter,
-                userTimeZone,
-                pageable
-        );
+        Page<Game> pages = gameServiceImpl.getCurrentGames(leagueEnum, context, userTimeZone, pageable);
         return new PageResponse<>(pages.map(gameResponseMapper::toResponse));
     }
 

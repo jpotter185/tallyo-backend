@@ -1,5 +1,6 @@
 package com.tallyo.tallyo_backend.service;
 
+import com.tallyo.tallyo_backend.dto.CurrentContext;
 import com.tallyo.tallyo_backend.dto.GameDetailsResponse;
 import com.tallyo.tallyo_backend.dto.PlayerStatGroupResponse;
 import com.tallyo.tallyo_backend.dto.PlayerStatLineResponse;
@@ -65,6 +66,20 @@ public class GameServiceImpl implements GameService {
             utcEnd = endOfDay.toInstant();
         }
         return gameRepository.getGames(league, year, seasonType, week, utcStart, utcEnd, pageable);
+    }
+
+    @Override
+    public Page<Game> getCurrentGames(League league, CurrentContext context, String timezone, Pageable pageable) {
+        String dateFilter = "date".equals(league.getContextMode()) ? context.getDate() : "";
+        return getGames(
+                league,
+                league.isSupportsYearFilter() ? context.getYear() : 0,
+                context.getSeasonType(),
+                league.isSupportsWeekFilter() ? context.getWeek() : 0,
+                dateFilter,
+                timezone,
+                pageable
+        );
     }
 
     @Override

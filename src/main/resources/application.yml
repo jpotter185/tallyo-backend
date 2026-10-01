@@ -1,5 +1,19 @@
 spring:
 
+  # MCP server at /mcp (tools in com.tallyo.tallyo_backend.mcp; OAuth in SecurityConfig).
+  # Stateless streamable HTTP: no session between requests, which suits bearer-token auth.
+  ai:
+    mcp:
+      server:
+        name: tallyo
+        version: 1.0.0
+        type: SYNC
+        protocol: STATELESS
+        instructions: >-
+          Sports data from ESPN, stored by tallyo: scores, schedules, records, betting spreads,
+          standings, box scores, and NFL injuries. Leagues: nfl, cfb, nhl, mls, mlb. For "this
+          week" or "today", use get_current_games, or get_context to fill in find_games filters.
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
     username: ${SPRING_DATASOURCE_USERNAME}
