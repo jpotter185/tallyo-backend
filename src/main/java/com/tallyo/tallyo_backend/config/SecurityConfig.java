@@ -74,11 +74,13 @@ public class SecurityConfig {
                 .oauth2ResourceServer(rs -> rs
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         // RFC 9728 metadata; 401s point to it via WWW-Authenticate resource_metadata.
+                        // Spring prefills bearer method "header" and marks tokens as mTLS-bound; ours
+                        // are plain bearer tokens, so that flag must be false or clients may refuse.
                         .protectedResourceMetadata(meta -> meta.protectedResourceMetadataCustomizer(m -> m
                                 .resource(oauth.resource())
                                 .authorizationServer(oauth.issuer())
                                 .scope(oauth.scope())
-                                .bearerMethod("header")
+                                .tlsClientCertificateBoundAccessTokens(false)
                                 .resourceName("tallyo"))));
         return http.build();
     }

@@ -161,7 +161,9 @@ class SecurityConfigTest {
                 .andExpect(jsonPath("$.resource").value(AUDIENCE))
                 .andExpect(jsonPath("$.authorization_servers[0]").value(ISSUER))
                 .andExpect(jsonPath("$.scopes_supported[0]").value("tallyo:read"))
-                .andExpect(jsonPath("$.bearer_methods_supported[0]").value("header"));
+                .andExpect(jsonPath("$.bearer_methods_supported").value(org.hamcrest.Matchers.contains("header")))
+                // Spring defaults this to true; tokens here are plain bearer tokens, not mTLS-bound.
+                .andExpect(jsonPath("$.tls_client_certificate_bound_access_tokens").value(false));
     }
 
     // ---- helpers ----
