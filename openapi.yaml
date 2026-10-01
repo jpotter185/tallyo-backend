@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Tallyo Backend API
-  version: 1.4.0
+  version: 1.5.0
   description: Contract for Tallyo UI <-> Spring backend integration.
 servers:
   - url: https://api.tallyo.us
@@ -12,6 +12,18 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+    KeycloakOAuth:
+      type: oauth2
+      description: >-
+        Bearer tokens from Keycloak (realm tallyo). Required on /mcp/** only. Tokens must have
+        audience https://api.tallyo.us/mcp, scope tallyo:read, and the user must be in the
+        Keycloak group tallyo-backend.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.tallyo.us/realms/tallyo/protocol/openid-connect/auth
+          tokenUrl: https://auth.tallyo.us/realms/tallyo/protocol/openid-connect/token
+          scopes:
+            tallyo:read: Read tallyo sports data
   schemas:
     ApiError:
       type: object
@@ -447,6 +459,44 @@ components:
           description: Per-player stat tables; empty unless the league supports player stats
           items:
             $ref: '#/components/schemas/PlayerStatGroup'
+    WhoamiResponse:
+      type: object
+      required: [subject, groups, scopes]
+      properties:
+        subject:
+          type: string
+          description: Keycloak user id (token sub)
+        username:
+          type: [string, 'null']
+        groups:
+          type: array
+          items:
+            type: string
+        scopes:
+          type: array
+          items:
+            type: string
+    ProtectedResourceMetadata:
+      type: object
+      description: OAuth 2.0 Protected Resource Metadata (RFC 9728), used by MCP clients to find the authorization server.
+      required: [resource, authorization_servers]
+      properties:
+        resource:
+          type: string
+        authorization_servers:
+          type: array
+          items:
+            type: string
+        scopes_supported:
+          type: array
+          items:
+            type: string
+        bearer_methods_supported:
+          type: array
+          items:
+            type: string
+        resource_name:
+          type: string
     UpdateResponse:
       type: object
       required: [gameCount, durationMs]
@@ -478,6 +528,37 @@ components:
 security:
   - ApiKeyAuth: []
 paths:
+  /mcp/whoami:
+    get:
+      description: >-
+        Echoes the caller's OAuth token (subject, groups, scopes). End-to-end check that
+        sign-in through Keycloak reaches the MCP routes; the API key does not work here.
+      security:
+        - KeycloakOAuth: ['tallyo:read']
+      responses:
+        '200':
+          description: The token's identity and grants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhoamiResponse'
+        '401':
+          description: >-
+            Missing, expired, or invalid token (wrong issuer, audience, or signature). The
+            WWW-Authenticate header's resource_metadata points to /.well-known/oauth-protected-resource.
+        '403':
+          description: Valid token without the tallyo:read scope or the tallyo-backend group
+  /.well-known/oauth-protected-resource:
+    get:
+      description: Public. Tells OAuth/MCP clients which authorization server and scopes protect /mcp.
+      security: []
+      responses:
+        '200':
+          description: Protected resource metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectedResourceMetadata'
   /api/v1/leagues:
     get:
       responses:

@@ -10,7 +10,7 @@ Spring Boot backend for the Tallyo sports dashboard. It ingests ESPN scoreboard/
 
 ```bash
 ./mvnw -q -DskipTests compile   # compile only
-./mvnw test                     # run tests (there are currently none under src/test)
+./mvnw test                     # run tests (SecurityConfigTest; needs no database or network)
 ./mvnw spring-boot:run           # run locally, requires env vars below
 ./mvnw clean package             # build jar for deployment
 ./deploy.sh                      # build + docker compose down/up + tail logs (used in prod, requires .env)
@@ -32,7 +32,7 @@ Package root: `com.tallyo.tallyo_backend`. Flow for a request: `controller` → 
 - `service/InjuryServiceImpl` — NFL-only. On startup and every 6h, fetches each team's ESPN roster (current injury designation per player) and core-API depth chart (QB order), replacing that team's rows in `team_injuries` / `team_qb_depth_charts`; a failed team fetch keeps its previous rows. Served by `GET /api/v1/injuries`. ESPN's game-summary injury list is capped at 5 per team and the league-wide feed at 25, hence the per-team roster. ESPN's depth chart ignores injuries — combine it with the injury status.
 - `service/CalendarServiceImpl` — computes "current" league context (year/seasonType/week/date) via a native query (`GameRepository.findCurrentContext`) that prioritizes in-progress games, then next upcoming, then most recent final. Result is cached in `currentContext` (key = league + timezone), evicted every 5 minutes (`CacheConfig`).
 - `enums/League` — single source of truth for supported leagues (`nfl`, `college-football`, `nhl`, `usa.1`, `fifa.world`, `mlb`) and their capability flags (`supportsYearFilter`, `supportsWeekFilter`, `supportsStandings`, `contextMode` — `"season"` vs `"date"` — `statsProfile`, `teamOrder`, `supportsOdds`, `supportsLiveDetails`). Controllers and services branch on these flags instead of hardcoding per-league logic.
-- `config/ApiKeyAuthFilter` + `config/SecurityConfig` — stateless `x-api-key` header check via a filter placed before Spring Security's auth filter; CORS is locked to `https://tallyo.us` (update `SecurityConfig` if the frontend origin changes).
+- `config/SecurityConfig` — two filter chains. **`/mcp/**`**: OAuth bearer tokens from Keycloak (repo `tallyo-auth`, `https://auth.tallyo.us/realms/tallyo`), validated for signature, expiry, issuer and audience `https://api.tallyo.us/mcp`, and authorized by scope `tallyo:read` plus Keycloak group `tallyo-backend` (`groups` claim). Settings in `tallyo.oauth.*` (`config/OAuthProperties`). Spring Security's built-in RFC 9728 metadata is served publicly at `/.well-known/oauth-protected-resource`, and 401s point to it, which is how MCP clients find Keycloak. **Everything else**: the stateless `x-api-key` check (`config/ApiKeyAuthFilter`, placed before Spring Security's auth filter), with CORS locked to `https://tallyo.us` (update `SecurityConfig` if the frontend origin changes). The two don't overlap: a key doesn't open `/mcp/**` and a token doesn't open the API routes. `ApiKeyAuthFilter`'s automatic servlet-filter registration is disabled so it only runs in its own chain. Covered by `SecurityConfigTest`.
 - `exception/GlobalExceptionHandler` — all errors return the same `ApiError` envelope (`code`, `message`, `details?`, `path?`, `timestamp?`). `InvalidRequestException` → 400; `DateTimeException` → 400 `INVALID_TIMEZONE`; `RestClientException`/`ResourceAccessException` (ESPN upstream failures) → 502; everything else → 500.
 
 ### Timezone/date handling

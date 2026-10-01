@@ -44,3 +44,16 @@ espn:
 
 api:
   key: ${API_KEY}
+
+# OAuth for the MCP routes (/mcp/**). Tokens come from Keycloak (repo tallyo-auth).
+tallyo:
+  oauth:
+    issuer: ${OAUTH_ISSUER_URI:https://auth.tallyo.us/realms/tallyo}
+    resource: https://api.tallyo.us/mcp
+    scope: tallyo:read
+    required-group: tallyo-backend
+
+# Behind nginx: trust X-Forwarded-Proto/Host so request URLs (e.g. the protected-resource
+# metadata link in 401 responses) use https://api.tallyo.us, not the container's http address.
+server:
+  forward-headers-strategy: native
