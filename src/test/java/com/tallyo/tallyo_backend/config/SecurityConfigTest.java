@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -29,6 +30,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -82,6 +84,17 @@ class SecurityConfigTest {
     void tokenDoesNotOpenApiRoutes() throws Exception {
         mvc.perform(get("/api/v1/leagues").header("Authorization", "Bearer " + token(c -> {})))
                 .andExpect(status().isForbidden());
+    }
+
+    // ---- Health: public ----
+
+    // @WebMvcTest doesn't load Actuator's endpoints, so this checks only that security lets the
+    // request reach Spring MVC without a key (MVC then finds no handler in this slice).
+    @Test
+    void healthNeedsNoKey() throws Exception {
+        mvc.perform(get("/actuator/health"))
+                .andExpect(result -> assertThat(result.getResolvedException())
+                        .isInstanceOf(NoResourceFoundException.class));
     }
 
     // ---- MCP routes: OAuth ----

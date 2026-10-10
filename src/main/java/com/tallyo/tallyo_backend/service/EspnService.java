@@ -110,7 +110,7 @@ public class EspnService {
     // (see fetchGames(String, String, boolean) above), so a season backfill has
     // to walk day by day too. A single day never comes close to the 1000-event
     // cap that used to require bisecting, so that logic is no longer needed.
-    private List<Game> fetchGamesForRange(League league, LocalDate startDate, LocalDate endDate) {
+    public List<Game> fetchGamesForRange(League league, LocalDate startDate, LocalDate endDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         int limit = espnApiProperties.getScoreboard().getLimit();
         Map<Integer, Game> gamesById = new LinkedHashMap<>();

@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -42,6 +41,7 @@ public class GameServiceImpl implements GameService {
     private static final Logger logger = LoggerFactory.getLogger(GameServiceImpl.class);
     private static final Set<String> AWAITING_PLAY_STATUSES =
             Set.of("STATUS_SCHEDULED", "STATUS_POSTPONED");
+    private static final int SCHEDULE_LOOKBACK_DAYS = 7;
 
     private final GameRepository gameRepository;
     private final EspnService espnService;
@@ -250,17 +250,22 @@ public class GameServiceImpl implements GameService {
         refreshSchedules();
     }
 
-    // Seeds/refreshes the current year's schedule for every league so the 20s
-    // live-update job has upcoming games to trigger on. Schedule-only (no
-    // per-game summary calls): one scoreboard request per league.
+    // Seeds/refreshes the rest of the current year's schedule for every league
+    // so the 20s live-update job has upcoming games to trigger on. Schedule-only
+    // (no per-game summary calls), but ESPN takes one date per request, so this
+    // is one request per day per league. Past days are mostly skipped: games
+    // that have started aren't saved here anyway; the short lookback only lets
+    // pruning catch recently replaced placeholders.
     private void refreshSchedules() {
         long startTime = System.currentTimeMillis();
-        logger.info("Refreshing season schedules for all leagues");
+        LocalDate start = LocalDate.now().minusDays(SCHEDULE_LOOKBACK_DAYS);
+        LocalDate end = LocalDate.of(LocalDate.now().getYear(), 12, 31);
+        logger.info("Refreshing schedules for all leagues from {} to {}", start, end);
         for (League league : League.values()) {
             try {
-                List<Game> games = espnService.fetchGames(league, 0, false);
+                List<Game> games = espnService.fetchGamesForRange(league, start, end);
                 int saved = saveScheduleGames(games);
-                int pruned = pruneStaleScheduledGames(league, games);
+                int pruned = pruneStaleScheduledGames(league, games, start, end);
                 logger.info("Refreshed schedule for {}: saved {} of {} games, pruned {} stale",
                         league, saved, games.size(), pruned);
             } catch (Exception e) {
@@ -294,13 +299,15 @@ public class GameServiceImpl implements GameService {
     // preseason placeholders), leaving the old id in our DB as a duplicate.
     // Delete scheduled games in the refreshed window that ESPN no longer lists.
     // An empty fetch skips pruning so a bad ESPN response can't wipe a schedule.
-    private int pruneStaleScheduledGames(League league, List<Game> fetchedGames) {
+    // The window starts a day after the first fetched date: ESPN's scoreboard
+    // days aren't UTC days, so a game near that edge may not have been fetched.
+    private int pruneStaleScheduledGames(League league, List<Game> fetchedGames,
+                                         LocalDate start, LocalDate end) {
         if (fetchedGames.isEmpty()) {
             return 0;
         }
-        int year = Year.now().getValue();
-        Instant windowStart = LocalDate.of(year, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant windowEnd = LocalDate.of(year + 1, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant windowStart = start.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant windowEnd = end.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         List<Integer> fetchedIds = fetchedGames.stream().map(Game::getId).toList();
         return gameRepository.deleteStaleScheduledGames(league, windowStart, windowEnd, fetchedIds);
     }

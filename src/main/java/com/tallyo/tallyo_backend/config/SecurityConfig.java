@@ -36,8 +36,9 @@ import java.util.List;
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasAuthority;
 
 /**
- * Two ways in, each with its own filter chain:
+ * Three ways in, each with its own filter chain:
  * <ol>
+ *   <li>{@code /actuator/health}: public, for uptime and container health checks.</li>
  *   <li>{@code /mcp/**}: OAuth bearer tokens from Keycloak (for MCP clients such as claude.ai),
  *       plus the public protected-resource metadata MCP clients use to find Keycloak.</li>
  *   <li>Everything else: the shared {@code x-api-key}, as before (frontend proxy, pipelines).</li>
@@ -51,6 +52,7 @@ import static org.springframework.security.authorization.AuthorityAuthorizationM
 public class SecurityConfig {
 
     static final String METADATA_PATH = "/.well-known/oauth-protected-resource";
+    static final String HEALTH_PATH = "/actuator/health";
 
     private final ApiKeyAuthFilter apiKeyAuthFilter;
     private final OAuthProperties oauth;
@@ -58,6 +60,17 @@ public class SecurityConfig {
     public SecurityConfig(ApiKeyAuthFilter apiKeyAuthFilter, OAuthProperties oauth) {
         this.apiKeyAuthFilter = apiKeyAuthFilter;
         this.oauth = oauth;
+    }
+
+    /** Health only reports UP/DOWN (details are off in application.yml), so it's safe to leave open. */
+    @Bean
+    @Order(0)
+    public SecurityFilterChain healthFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(HEALTH_PATH, HEALTH_PATH + "/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
     }
 
     @Bean

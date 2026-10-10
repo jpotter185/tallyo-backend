@@ -59,6 +59,21 @@ espn:
 api:
   key: ${API_KEY}
 
+# Public health check at /actuator/health (no API key; see SecurityConfig). Only the overall
+# status is shown, UP (200) or DOWN (503); it includes a database check but never calls ESPN.
+# Probes are off: their readiness state stays OUT_OF_SERVICE until every startup listener
+# returns (including the schedule refresh), which would report DOWN while the API is serving.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: false
+
 # OAuth for the MCP routes (/mcp/**). Tokens come from Keycloak (repo tallyo-auth).
 tallyo:
   oauth:

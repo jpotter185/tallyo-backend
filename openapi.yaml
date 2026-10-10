@@ -25,6 +25,13 @@ components:
           scopes:
             tallyo:read: Read tallyo sports data
   schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN]
     ApiError:
       type: object
       required: [code, message]
@@ -586,6 +593,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProtectedResourceMetadata'
+  /actuator/health:
+    get:
+      description: >-
+        Public health check (no API key) for uptime monitors and container health checks.
+        Includes a database check; never calls ESPN. Not used by the frontend.
+      security: []
+      responses:
+        '200':
+          description: Up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Down (for example, the database is unreachable)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
   /api/v1/leagues:
     get:
       responses:
