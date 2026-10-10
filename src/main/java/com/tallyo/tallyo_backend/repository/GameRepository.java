@@ -82,15 +82,20 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             """, nativeQuery = true)
     CurrentContext findCurrentContext(@Param("league") String league, @Param("now") Instant now);
 
-    @Query(value = "SELECT COUNT(*) > 0 " +
+    // Leagues (enum names) the live-update job should poll: a game is live, or
+    // its start time has passed but it's still marked scheduled. The scheduled
+    // window is short so a postponed/moved game ESPN never flips to live can't
+    // keep polling going all night; the daily schedule refresh picks it up.
+    @Query(value = "SELECT DISTINCT league " +
             "FROM games " +
-            "WHERE iso_date::timestamp >= NOW() - INTERVAL '24 hours' " +
-            "AND (" +
+            "WHERE (" +
             "  game_status IN ('STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD') " +
-            "  OR " +
-            "  (game_status = 'STATUS_SCHEDULED' AND iso_date::timestamp <= NOW())" +
+            "  AND iso_date >= NOW() - INTERVAL '24 hours'" +
+            ") OR (" +
+            "  game_status = 'STATUS_SCHEDULED' " +
+            "  AND iso_date <= NOW() AND iso_date >= NOW() - INTERVAL '4 hours'" +
             ")", nativeQuery = true)
-    boolean shouldUpdate();
+    List<String> findLeaguesNeedingUpdate();
 
     @Query(value = "SELECT DISTINCT iso_date " +
             "FROM games " +

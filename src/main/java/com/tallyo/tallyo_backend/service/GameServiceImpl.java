@@ -178,35 +178,66 @@ public class GameServiceImpl implements GameService {
         return joined == null ? List.of() : List.of(joined.split("\\|", -1));
     }
 
+    // Polls ESPN only for leagues with a live (or due-to-start) game; when
+    // nothing is live this is a single DB query and no ESPN calls.
     @Scheduled(fixedRate = 20000)
     public void updateGamesForToday() {
-        long startTime = System.currentTimeMillis();
-        logger.info("Scheduled- Updating games for today");
+        List<League> leagues;
         try {
-            if (!gameRepository.shouldUpdate()) {
-                return;
-            }
+            leagues = gameRepository.findLeaguesNeedingUpdate().stream()
+                    .map(League::valueOf)
+                    .toList();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Could not check for live games: {}", e.getMessage());
+            return;
         }
+        if (leagues.isEmpty()) {
+            return;
+        }
+        long startTime = System.currentTimeMillis();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String yesterday = LocalDate.now().minusDays(1).format(formatter);
         String today = LocalDate.now().format(formatter);
         int updatedGameCount = 0;
         // Each league is isolated so one league's ESPN failure (rate limiting,
         // upstream errors, etc.) can't starve the rest of the leagues of updates.
-        for (League league : League.values()) {
+        for (League league : leagues) {
             try {
-                List<Game> games = espnService.fetchGames(league, yesterday, today, true);
-                gameRepository.saveAll(games);
-                updatedGameCount += games.size();
+                updatedGameCount += updateLiveGames(league, espnService.fetchGames(league, yesterday, today, false));
             } catch (Exception e) {
                 logger.error("Error updating games for league {}:", league, e);
             }
         }
-        logger.info("Finished updating games for today, updated {} games in {}ms ",
-                updatedGameCount,
-                System.currentTimeMillis() - startTime);
+        logger.info("Updated {} games for {} in {}ms",
+                updatedGameCount, leagues, System.currentTimeMillis() - startTime);
+    }
+
+    // The scoreboard is one request per day; the per-game summary is the
+    // expensive part, so only fetch it for games that are playing or just
+    // finished. Games already stored as final with stats are skipped entirely:
+    // saving them without their summary would orphan-delete their stats. A
+    // final game without stats (finished while the app was down, so the
+    // schedule refresh stored it bare) still gets its summary fetched.
+    private int updateLiveGames(League league, List<Game> games) {
+        Map<Integer, Game> stored = gameRepository.findAllById(
+                        games.stream().map(game -> (long) game.getId()).toList()).stream()
+                .collect(Collectors.toMap(Game::getId, game -> game));
+
+        List<Game> toSave = games.stream()
+                .filter(game -> {
+                    Game existing = stored.get(game.getId());
+                    return existing == null
+                            || !Boolean.TRUE.equals(existing.getFinalGame())
+                            || existing.getStats() == null
+                            || existing.getStats().isEmpty();
+                })
+                .toList();
+        toSave.stream()
+                .filter(game -> game.getGameStatus() != null
+                        && !AWAITING_PLAY_STATUSES.contains(game.getGameStatus()))
+                .forEach(game -> espnService.attachStatsToGame(game, league));
+        gameRepository.saveAll(toSave);
+        return toSave.size();
     }
 
     @EventListener(ApplicationReadyEvent.class)

@@ -75,7 +75,9 @@ public class EspnService {
         return games;
     }
 
-    private void attachStatsToGame(Game game, League league) {
+    // Fetches the game's ESPN summary (one request) and attaches its stats,
+    // leaders, scoring plays and player lines. Failures are logged, not thrown.
+    public void attachStatsToGame(Game game, League league) {
         try {
             EspnBoxscoreResponse summary = fetchSummaryForGame(game.getId(), league);
             if (summary == null) {
