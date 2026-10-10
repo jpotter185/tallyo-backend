@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "04508e101e07",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 10,
+  "files_touched": [
+    "CLAUDE.md",
+    "openapi.yaml",
+    "pom.xml",
+    "src/main/java/com/tallyo/tallyo_backend/config/SecurityConfig.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java",
+    "src/main/resources/application.yml",
+    "src/test/java/com/tallyo/tallyo_backend/config/SecurityConfigTest.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/04/508e101e07/0/metadata.json",
+      "transcript": "/04/508e101e07/0/full.jsonl",
+      "compact_transcript": "/04/508e101e07/0/transcript.jsonl",
+      "content_hash": "/04/508e101e07/0/content_hash.txt",
+      "prompt": "/04/508e101e07/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 80,
+    "cache_creation_tokens": 65418,
+    "cache_read_tokens": 4686225,
+    "output_tokens": 24464,
+    "api_call_count": 38
+  }
+}

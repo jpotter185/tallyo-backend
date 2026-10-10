@@ -1,0 +1,166 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_id": "04508e101e07",
+  "session_id": "70e5e33a-68fc-456b-8c4a-07be0790eb84",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T18:18:41.925002Z",
+  "branch": "main",
+  "checkpoints_count": 10,
+  "save_step_count": 5,
+  "files_touched": [
+    "CLAUDE.md",
+    "openapi.yaml",
+    "pom.xml",
+    "src/main/java/com/tallyo/tallyo_backend/config/SecurityConfig.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java",
+    "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java",
+    "src/main/resources/application.yml",
+    "src/test/java/com/tallyo/tallyo_backend/config/SecurityConfigTest.java"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "847fc343a210",
+  "checkpoint_transcript_start": 281,
+  "transcript_lines_at_start": 281,
+  "token_usage": {
+    "input_tokens": 80,
+    "cache_creation_tokens": 65418,
+    "cache_read_tokens": 4686225,
+    "output_tokens": 24464,
+    "api_call_count": 38
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01AHkRf3ZxaCsTEFoJyJALB6",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "verify"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "847fc343a210",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 122,
+        "end": 123,
+        "entry_ids": [
+          "a28c92e4-4ddc-4fc5-a1ba-d64d3ff9e5fb"
+        ],
+        "tool_use_id": "toolu_01AHkRf3ZxaCsTEFoJyJALB6"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01AHkRf3ZxaCsTEFoJyJALB6"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: verify",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T18:18:41.891169Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 9,
+    "human_modified": 14,
+    "human_removed": 0,
+    "total_committed": 9,
+    "total_lines_changed": 23,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 85,
+      "user_lines_removed": 2,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "CLAUDE.md": 1,
+        "docker-compose.override.yml": 6,
+        "openapi.yaml": 26,
+        "pom.xml": 4,
+        "src/main/java/com/tallyo/tallyo_backend/config/SecurityConfig.java": 14,
+        "src/main/resources/application.yml": 11,
+        "src/test/java/com/tallyo/tallyo_backend/config/SecurityConfigTest.java": 13
+      },
+      "user_removed_per_file": {
+        "CLAUDE.md": 1,
+        "src/main/java/com/tallyo/tallyo_backend/config/SecurityConfig.java": 1
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 69,
+      "agent_lines_removed": 2,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 69,
+      "agent_lines_removed": 2,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 39,
+      "user_lines_removed": 12,
+      "agent_lines_added": 69,
+      "agent_lines_removed": 2,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6,
+        "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java": 1,
+        "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java": 18,
+        "src/main/resources/application.yml": 4
+      },
+      "user_removed_per_file": {
+        "src/main/java/com/tallyo/tallyo_backend/service/EspnService.java": 1,
+        "src/main/java/com/tallyo/tallyo_backend/service/GameServiceImpl.java": 11
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 92,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 92,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        ".claude/settings.local.json": 10,
+        "docker-compose.override.yml": 6
+      }
+    }
+  ]
+}
