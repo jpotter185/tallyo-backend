@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -45,10 +46,13 @@ public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final EspnService espnService;
+    private final TransactionTemplate transactionTemplate;
 
-    public GameServiceImpl(GameRepository gameRepository, EspnService espnService) {
+    public GameServiceImpl(GameRepository gameRepository, EspnService espnService,
+                           TransactionTemplate transactionTemplate) {
         this.gameRepository = gameRepository;
         this.espnService = espnService;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
@@ -299,6 +303,8 @@ public class GameServiceImpl implements GameService {
     // preseason placeholders), leaving the old id in our DB as a duplicate.
     // Delete scheduled games in the refreshed window that ESPN no longer lists.
     // An empty fetch skips pruning so a bad ESPN response can't wipe a schedule.
+    // A stale game can still have child rows (odds, or stats from a game that
+    // went live and was reset to scheduled), which are deleted along with it.
     // The window starts a day after the first fetched date: ESPN's scoreboard
     // days aren't UTC days, so a game near that edge may not have been fetched.
     private int pruneStaleScheduledGames(League league, List<Game> fetchedGames,
@@ -309,6 +315,25 @@ public class GameServiceImpl implements GameService {
         Instant windowStart = start.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant windowEnd = end.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         List<Integer> fetchedIds = fetchedGames.stream().map(Game::getId).toList();
-        return gameRepository.deleteStaleScheduledGames(league, windowStart, windowEnd, fetchedIds);
+        List<Integer> staleIds = gameRepository.findStaleScheduledGameIds(
+                league, windowStart, windowEnd, fetchedIds);
+        if (staleIds.isEmpty()) {
+            return 0;
+        }
+        logger.info("Pruning {} stale scheduled {} games: {}", staleIds.size(), league, staleIds);
+        return deleteGames(staleIds);
+    }
+
+    // Children first, all in one transaction, so a failure leaves nothing half-deleted.
+    private int deleteGames(List<Integer> ids) {
+        Integer deleted = transactionTemplate.execute(status -> {
+            gameRepository.deleteStatsByGameIds(ids);
+            gameRepository.deleteLeadersByGameIds(ids);
+            gameRepository.deleteScoringPlaysByGameIds(ids);
+            gameRepository.deletePlayersByGameIds(ids);
+            gameRepository.deleteOddsByGameIds(ids);
+            return gameRepository.deleteGamesByIds(ids);
+        });
+        return deleted == null ? 0 : deleted;
     }
 }
