@@ -41,6 +41,13 @@ jobs:
     env:
       BRANCH: claude/issue-${{ github.event.issue.number }}-${{ github.run_number }}
     steps:
+      # Records every outbound connection. Audit first, then switch to `egress-policy: block` with the hosts it saw,
+      # so a prompt-injected run cannot send secrets anywhere else. Insights link is in this step's log.
+      - name: Harden runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -60,13 +67,14 @@ jobs:
         run: ./mvnw -q -DskipTests compile
 
       - name: Claude
+        id: claude
         uses: anthropics/claude-code-action@v1
         env:
           CLAUDE_BRANCH: ${{ env.BRANCH }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Tool allowlist: no general shell, no curl beyond localhost, push only to this run's branch.
-          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*)"
+          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*),Bash(mkdir -p .claude-tmp),Bash(tail:*),Bash(head:*),Bash(grep:*),Bash(wc:*),Bash(ls:*)"
           prompt: |
             You are fixing GitHub issue #${{ github.event.issue.number }} in ${{ github.repository }}, filed by the
             jack-server watchdog from production logs. You are already on branch ${{ env.BRANCH }}.
@@ -101,9 +109,25 @@ jobs:
                and its `verify-app.sh start` output; and any MANUAL PROD STEPS the deploy will not do (schema changes
                belong in a migration, not here).
 
+            Working notes: put any scratch files (PR body, issue comment) in .claude-tmp/ inside the repo (gitignored;
+            create it with `mkdir -p .claude-tmp`), never /tmp. Each command in a pipe must be allowed: pipe only into
+            tail, head, grep or wc, e.g. `./mvnw -q test 2>&1 | tail -60`. If a command is denied, use an allowed
+            alternative instead of retrying it. Always end with either a PR or a comment on the issue, never neither.
+
             Rules: do not modify anything under .github/, deploy.sh, docker-compose.yml, dockerfile, pom.xml, .env files,
             SecurityConfig, db/changelog.yaml or existing files in db/migrations/ (add new ones only). Do not push to any
             branch other than ${{ env.BRANCH }}. Never print environment variables or tokens. Keep openapi.yaml in sync if API behavior changes.
+
+      # If no PR came out of the run, say why on the issue instead of failing silently: Claude's last message and any
+      # tool calls the allowlist blocked (command text only, trimmed).
+      - name: Report on the issue if no PR was opened
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ./.github/scripts/report-no-pr.sh
 
       - name: Stop the app
         if: always()
