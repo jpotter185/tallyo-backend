@@ -1,0 +1,9 @@
+Is there an easy way for me to run these sql migrations in an automated manner?
+
+---
+
+Or could we run like a liquibase job to make the update? I don't want it to run all the time
+
+---
+
+Can you make those changes? Make it run on every deploy (but with the history table it won't re-run the same scripts..)

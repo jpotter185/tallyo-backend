@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "df837cd8ba91",
+  "strategy": "manual-commit",
+  "branch": "feature/liquibase-migrations",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "deploy.sh",
+    "docker-compose.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/df/837cd8ba91/0/metadata.json",
+      "transcript": "/df/837cd8ba91/0/full.jsonl",
+      "compact_transcript": "/df/837cd8ba91/0/transcript.jsonl",
+      "content_hash": "/df/837cd8ba91/0/content_hash.txt",
+      "prompt": "/df/837cd8ba91/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 46,
+    "cache_creation_tokens": 35634,
+    "cache_read_tokens": 2109877,
+    "output_tokens": 22036,
+    "api_call_count": 23
+  }
+}
