@@ -10,7 +10,8 @@ description: Build, launch, and drive the Tallyo backend locally to verify chang
 **In CI** (`.github/workflows/claude-fix.yml`): Postgres 15 already runs on
 localhost:5432 (user `tallyo`, trust auth). Skip the setup below, and use
 `./.github/scripts/verify-app.sh start|logs|stop` instead of the Launch and
-Teardown steps. The Drive steps are the same.
+Teardown steps. Drive the same endpoints with `verify-app.sh get '/path?query'`
+(or `post`) instead of curl: it adds the API key and prints the body and HTTP status.
 
 **On the Mac:** Homebrew Postgres 15 is installed at `/opt/homebrew/opt/postgresql@15/bin`.
 Spin up a throwaway cluster in the session scratchpad (never reuse a real data dir):

@@ -41,12 +41,30 @@ jobs:
     env:
       BRANCH: claude/issue-${{ github.event.issue.number }}-${{ github.run_number }}
     steps:
-      # Records every outbound connection. Audit first, then switch to `egress-policy: block` with the hosts it saw,
-      # so a prompt-injected run cannot send secrets anywhere else. Insights link is in this step's log.
+      # Outbound network allowlist, so a prompt-injected run cannot send secrets anywhere else. Hosts come from the
+      # audit-mode run 5 (2026-10-13). If a run fails on a blocked host, this step's post log lists it; add it here.
       - name: Harden runner
         uses: step-security/harden-runner@v2
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+            agent.api.stepsecurity.io:443
+            api.anthropic.com:443
+            claude.ai:443
+            downloads.claude.ai:443
+            registry.npmjs.org:443
+            repo.maven.apache.org:443
+            registry-1.docker.io:443
+            auth.docker.io:443
+            production.cloudfront.docker.com:443
+            site.api.espn.com:443
+            sports.core.api.espn.com:443
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,7 +92,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Tool allowlist: no general shell, no curl beyond localhost, push only to this run's branch.
-          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(git push -q -u origin ${{ env.BRANCH }}),Bash(git push origin ${{ env.BRANCH }}),Bash(git push -q origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*),Bash(mkdir -p .claude-tmp),Bash(tail:*),Bash(head:*),Bash(grep:*),Bash(wc:*),Bash(ls:*)"
+          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(git push -q -u origin ${{ env.BRANCH }}),Bash(git push origin ${{ env.BRANCH }}),Bash(git push -q origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*),Bash(mkdir -p .claude-tmp),Bash(tail:*),Bash(head:*),Bash(grep:*),Bash(wc:*),Bash(ls:*)"
           prompt: |
             You are fixing GitHub issue #${{ github.event.issue.number }} in ${{ github.repository }}, filed by the
             jack-server watchdog from production logs. You are already on branch ${{ env.BRANCH }}.
@@ -95,9 +113,8 @@ jobs:
                `./.github/scripts/verify-app.sh start` (it waits for the startup refresh, then applies db/migrations and
                fails if a migration fails), inspect with
                `./.github/scripts/verify-app.sh logs`, and stop it with `./.github/scripts/verify-app.sh stop`. Exercise the
-               endpoints and code paths your fix touches with curl. The allowlist only matches this shape: the URL right
-               after `curl -s` (or `curl -s -X POST`), single-quoted if it has a query string, the header last, no pipes:
-               `curl -s 'localhost:8080/api/v1/games/current?league=nfl' -H 'x-api-key: verify-key'`. Then
+               endpoints and code paths your fix touches with `./.github/scripts/verify-app.sh get '/api/v1/leagues'` (or
+               `post '/path?query'`; it adds the API key and prints the body and HTTP status; there is no direct curl). Then
                confirm the issue's error does not appear in the app log, and reproduce the original failure if practical.
                `psql -h localhost -U tallyo postgres` is available for schema checks.
             5. Commit with a clear message ending in "Fixes #${{ github.event.issue.number }}", then

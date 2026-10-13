@@ -4,6 +4,8 @@
 # verify skill instead.
 #   verify-app.sh start   build + boot, wait for /actuator/health UP and the startup schedule refresh, then apply
 #                         db/migrations with Liquibase (prod runs them on deploy; see db/README.md)
+#   verify-app.sh get /path?query    GET localhost:8080/path with the verify API key; prints the body, then the status
+#   verify-app.sh post /path?query   same with POST
 #   verify-app.sh logs    last 200 lines of the app log
 #   verify-app.sh stop    stop the app
 set -uo pipefail
@@ -46,6 +48,19 @@ case "${1:-}" in
     fi
     echo "app did not become healthy; last log lines:"; tail -80 "$LOG"; exit 1
     ;;
+  get|post)
+    # Builds the URL itself (always localhost, always the verify key), so the workflow's tool allowlist needs no curl patterns.
+    path=${2:-}
+    case "$path" in
+      /*) ;;
+      *) echo "usage: $0 $1 /path?query  (path must start with /; URL-encode spaces)"; exit 2 ;;
+    esac
+    if [ "$#" -ne 2 ] || printf '%s' "$path" | grep -q '[[:space:]]'; then
+      echo "usage: $0 $1 /path?query  (one argument, no spaces)"; exit 2
+    fi
+    method=GET; [ "$1" = post ] && method=POST
+    curl -s -X "$method" -H 'x-api-key: verify-key' -w '\nHTTP %{http_code}\n' "http://localhost:8080$path"
+    ;;
   logs)
     tail -200 "$LOG"
     ;;
@@ -54,6 +69,6 @@ case "${1:-}" in
     rm -f "$PIDFILE"; echo "stopped"
     ;;
   *)
-    echo "usage: $0 start|logs|stop"; exit 2
+    echo "usage: $0 start|get|post|logs|stop"; exit 2
     ;;
 esac
