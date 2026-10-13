@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -15,13 +16,16 @@ public class LeagueConstraintSync {
     private static final Logger logger = LoggerFactory.getLogger(LeagueConstraintSync.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final TransactionTemplate transactionTemplate;
 
-    public LeagueConstraintSync(JdbcTemplate jdbcTemplate) {
+    public LeagueConstraintSync(JdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @PostConstruct
     public void syncLeagueConstraints() {
+        // Includes retired leagues: their rows are kept, so the constraint must allow them.
         String allowed = Arrays.stream(League.values())
                 .map(Enum::name)
                 .map(value -> "'" + value + "'")
@@ -39,8 +43,11 @@ public class LeagueConstraintSync {
                 + " CHECK (" + column + " IN (" + allowedValuesSql + "))";
 
         try {
-            jdbcTemplate.execute(dropSql);
-            jdbcTemplate.execute(addSql);
+            // One transaction so a failed add rolls back the drop instead of leaving the table unconstrained.
+            transactionTemplate.executeWithoutResult(status -> {
+                jdbcTemplate.execute(dropSql);
+                jdbcTemplate.execute(addSql);
+            });
             logger.info("Synchronized {} on {}", constraintName, table);
         } catch (Exception ex) {
             logger.warn("Could not synchronize {} on {}: {}", constraintName, table, ex.getMessage());

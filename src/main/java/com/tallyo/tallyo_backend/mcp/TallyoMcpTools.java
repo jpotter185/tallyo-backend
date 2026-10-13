@@ -20,7 +20,6 @@ import org.springframework.ai.mcp.annotation.McpToolParam;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -65,7 +64,7 @@ public class TallyoMcpTools {
                     + "schedules, standings, odds, player stats).",
             annotations = @McpAnnotations(readOnlyHint = true, idempotentHint = true, openWorldHint = false))
     public List<LeagueMetadataResponse> listLeagues() {
-        return Arrays.stream(League.values()).map(LeagueMetadataResponse::fromLeague).toList();
+        return League.active().stream().map(LeagueMetadataResponse::fromLeague).toList();
     }
 
     @McpTool(name = "get_context",

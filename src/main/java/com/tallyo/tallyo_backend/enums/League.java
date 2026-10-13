@@ -2,6 +2,9 @@ package com.tallyo.tallyo_backend.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Getter
 public enum League {
     // Declaration order drives /api/v1/leagues and therefore the frontend tab order.
@@ -9,7 +12,10 @@ public enum League {
     NFL(Sport.FOOTBALL, "nfl", "NFL", true, true, true, "season", "football", "away-left", true, true, true),
     CFB(Sport.FOOTBALL, "college-football", "CFB", true, true, true, "season", "football", "away-left", true, true, false),
     NHL(Sport.HOCKEY, "nhl", "NHL", false, false, true, "date", "hockey", "away-left", false, true, false),
-    MLB(Sport.BASEBALL, "mlb", "MLB", false, false, true, "date", "baseball", "away-left", true, true, true);
+    MLB(Sport.BASEBALL, "mlb", "MLB", false, false, true, "date", "baseball", "away-left", true, true, true),
+    // Retired: kept only so stored rows stay valid and load through JPA. Hidden from league lists
+    // and never polled, schedule-refreshed or backfilled from ESPN. Keep it last.
+    WORLD_CUP(Sport.SOCCER, "fifa.world", "World Cup", false, false, false, "date", "soccer", "home-left", false, false, false);
 
     private final String value;
     private final String label;
@@ -48,6 +54,15 @@ public enum League {
         this.supportsOdds = supportsOdds;
         this.supportsLiveDetails = supportsLiveDetails;
         this.supportsPlayerStats = supportsPlayerStats;
+    }
+
+    public boolean isRetired() {
+        return this == WORLD_CUP;
+    }
+
+    /** Leagues that are listed and fetched from ESPN (everything except retired ones). */
+    public static List<League> active() {
+        return Arrays.stream(values()).filter(league -> !league.isRetired()).toList();
     }
 
     public String getId() {
