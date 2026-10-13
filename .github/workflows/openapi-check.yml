@@ -23,3 +23,6 @@ jobs:
 
       - name: Compile
         run: ./mvnw -q -DskipTests compile
+
+      - name: Test
+        run: ./mvnw -q test

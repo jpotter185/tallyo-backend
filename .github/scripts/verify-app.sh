@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Start, inspect and stop the app for end-to-end verification in CI (used by claude-fix.yml).
+# Expects Postgres on localhost:5432 with user tallyo (the workflow's service container). On a Mac, follow the
+# verify skill instead.
+#   verify-app.sh start   build + boot, wait for /actuator/health UP and the startup schedule refresh
+#   verify-app.sh logs    last 200 lines of the app log
+#   verify-app.sh stop    stop the app
+set -uo pipefail
+LOG=/tmp/tallyo-app.log
+PIDFILE=/tmp/tallyo-app.pid
+
+case "${1:-}" in
+  start)
+    API_KEY=verify-key SPRING_DATASOURCE_USERNAME=tallyo setsid nohup ./mvnw -q spring-boot:run >"$LOG" 2>&1 &
+    echo $! >"$PIDFILE"
+    for _ in $(seq 1 150); do  # up to 5 min: build, boot, then the startup ESPN schedule refresh
+      if grep -q "Finished refreshing schedules" "$LOG" 2>/dev/null; then
+        echo "app is UP and the schedule refresh finished"; exit 0
+      fi
+      if ! kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        echo "app exited during startup; last log lines:"; tail -80 "$LOG"; exit 1
+      fi
+      sleep 2
+    done
+    if curl -sf localhost:8080/actuator/health >/dev/null; then
+      echo "app is UP but the schedule refresh has not finished (data may be partial)"; exit 0
+    fi
+    echo "app did not become healthy; last log lines:"; tail -80 "$LOG"; exit 1
+    ;;
+  logs)
+    tail -200 "$LOG"
+    ;;
+  stop)
+    [ -f "$PIDFILE" ] && kill -TERM -- -"$(cat "$PIDFILE")" 2>/dev/null
+    rm -f "$PIDFILE"; echo "stopped"
+    ;;
+  *)
+    echo "usage: $0 start|logs|stop"; exit 2
+    ;;
+esac
