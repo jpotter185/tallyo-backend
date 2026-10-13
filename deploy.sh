@@ -26,6 +26,16 @@ fi
 
 echo -e "${GREEN}Maven build successful!${NC}"
 
+# Apply new database migrations (db/migrations) while the current app is still up, so a
+# failure leaves it running. Already-applied ones are skipped.
+echo -e "${YELLOW}Running database migrations...${NC}"
+docker compose run --rm migrate
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Database migration failed! The running app was left as is.${NC}"
+    exit 1
+fi
+
 # Stop existing containers
 echo -e "${YELLOW}Stopping existing containers...${NC}"
 docker compose down

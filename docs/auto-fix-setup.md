@@ -56,7 +56,8 @@ Expect a branch `claude/issue-4-<run>` and a PR containing:
 - the root cause, the change and a risk level
 - the `./mvnw test` results
 - verify output: the app booted against Postgres 15, plus the curl results
-- a **MANUAL PROD STEPS** section with the SQL. Hibernate's `ddl-auto: update` never widens an existing column.
+- for schema changes, a new Liquibase file in `db/migrations/` (Hibernate's `ddl-auto: update` never widens an
+  existing column). Deploys apply it; see `db/README.md`.
 
 CI (Backend OpenAPI Check) should run on the PR, and nothing should land on main until you merge.
 
@@ -65,11 +66,11 @@ so check it first. If Claude was unsure of the cause, it comments on the issue i
 
 ## 5. After you merge #4's PR
 
-Merging deploys and closes #4. Run the PR's SQL on prod from a terminal on jack-server. It will look roughly
-like this (use the PR's exact columns):
+Merging deploys and closes #4. The column widening is `db/migrations/001-widen-games-text-columns.sql`, which
+`deploy.sh` applies before restarting the app, so there is no manual SQL. To check it ran, on jack-server:
 
 ```bash
-sudo docker exec myapp-postgres sh -c 'psql -U "$POSTGRES_USER" -d "${POSTGRES_DB:-$POSTGRES_USER}" -c "ALTER TABLE games ALTER last_play TYPE text, ALTER headline TYPE text, ALTER current_down_and_distance TYPE text"'
+sudo docker exec myapp-postgres sh -c 'psql -U "$POSTGRES_USER" -d "${POSTGRES_DB:-$POSTGRES_USER}" -c "SELECT id, dateexecuted FROM databasechangelog"'
 ```
 
 If the error comes back on the next CFB/NFL night, the watchdog files a new issue that links to #4.

@@ -1,0 +1,6 @@
+# Liquibase master changelog. Runs on every deploy (deploy.sh -> `docker compose run --rm migrate`), before the app
+# is restarted. Liquibase records each applied changeset in `databasechangelog`, so only new files run.
+databaseChangeLog:
+  - includeAll:
+      path: migrations/
+      relativeToChangelogFile: true
