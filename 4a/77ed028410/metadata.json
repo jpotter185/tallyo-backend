@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.7.8",
+  "checkpoint_version": "branch-v1",
+  "checkpoint_id": "4a77ed028410",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 16,
+  "files_touched": [
+    ".github/workflows/claude-fix.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/4a/77ed028410/0/metadata.json",
+      "transcript": "/4a/77ed028410/0/full.jsonl",
+      "compact_transcript": "/4a/77ed028410/0/transcript.jsonl",
+      "content_hash": "/4a/77ed028410/0/content_hash.txt",
+      "prompt": "/4a/77ed028410/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 90,
+    "cache_creation_tokens": 25818,
+    "cache_read_tokens": 2284707,
+    "output_tokens": 15147,
+    "api_call_count": 40
+  }
+}
