@@ -34,9 +34,11 @@ Runs use your Claude plan's usage. If the token ever leaks, revoke it and run `c
 Settings → Rules → Rulesets → **New ruleset** → **New branch ruleset**:
 
 - Name: `protect-main`. Enforcement status: **Active**.
-- Bypass list: **Add bypass** → **Repository admin** → Always allow. This lets you keep pushing and merging.
+- Bypass list: **Add bypass** → **Repository admin** → Always allow. This lets you push to main directly.
 - Target branches: **Add target** → **Include default branch**.
-- Rules: check **Restrict updates**, **Restrict deletions** and **Block force pushes**.
+- Rules: check **Restrict deletions**, **Block force pushes** and **Require a pull request before merging** with
+  required approvals set to 0. Don't use **Restrict updates**: it blocks PR merges too, so every merge would need
+  the bypass box. The bot can open PRs but its tools don't include merging, so nothing lands without you.
 - Save.
 
 ## 4. First run: issue #4 (varchar overflow)
