@@ -20,19 +20,50 @@ import java.util.List;
 public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findByLeague(League league);
 
-    // Removes stale scheduled games that ESPN no longer lists for the fetched
-    // window (ESPN replaces placeholder events with new ids, leaving duplicates).
-    // Restricted to STATUS_SCHEDULED so ingested scores/details are never touched.
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Game g WHERE g.league = :league " +
+    // Stale scheduled games that ESPN no longer lists for the fetched window
+    // (ESPN replaces placeholder events with new ids, leaving duplicates).
+    // Restricted to STATUS_SCHEDULED so finished games are never touched.
+    @Query("SELECT g.id FROM Game g WHERE g.league = :league " +
             "AND g.gameStatus = 'STATUS_SCHEDULED' " +
             "AND g.isoDate BETWEEN :windowStart AND :windowEnd " +
             "AND g.id NOT IN :fetchedIds")
-    int deleteStaleScheduledGames(@Param("league") League league,
-                                  @Param("windowStart") Instant windowStart,
-                                  @Param("windowEnd") Instant windowEnd,
-                                  @Param("fetchedIds") Collection<Integer> fetchedIds);
+    List<Integer> findStaleScheduledGameIds(@Param("league") League league,
+                                            @Param("windowStart") Instant windowStart,
+                                            @Param("windowEnd") Instant windowEnd,
+                                            @Param("fetchedIds") Collection<Integer> fetchedIds);
+
+    // Bulk JPQL deletes bypass JPA cascades, so a game's child rows have to be
+    // deleted before the game itself or the games FK constraints reject it.
+    // Callers run these in one transaction (see GameServiceImpl.deleteGames).
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM GameStat s WHERE s.key.gameId IN :ids")
+    int deleteStatsByGameIds(@Param("ids") Collection<Integer> ids);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM GameLeader l WHERE l.key.gameId IN :ids")
+    int deleteLeadersByGameIds(@Param("ids") Collection<Integer> ids);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ScoringPlay p WHERE p.key.gameId IN :ids")
+    int deleteScoringPlaysByGameIds(@Param("ids") Collection<Integer> ids);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM GamePlayer p WHERE p.key.gameId IN :ids")
+    int deletePlayersByGameIds(@Param("ids") Collection<Integer> ids);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM GameOdd o WHERE o.id IN :ids")
+    int deleteOddsByGameIds(@Param("ids") Collection<Integer> ids);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Game g WHERE g.id IN :ids")
+    int deleteGamesByIds(@Param("ids") Collection<Integer> ids);
 
     @Query("SELECT g FROM Game g WHERE g.league = :league " +
             "AND (:year = 0 OR g.year = :year) " +

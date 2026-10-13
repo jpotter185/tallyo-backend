@@ -7,14 +7,19 @@ import com.tallyo.tallyo_backend.enums.League;
 import com.tallyo.tallyo_backend.repository.GameRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,7 +30,8 @@ class GameServiceImplTest {
 
     private final GameRepository gameRepository = mock(GameRepository.class);
     private final EspnService espnService = mock(EspnService.class);
-    private final GameServiceImpl service = new GameServiceImpl(gameRepository, espnService);
+    private final GameServiceImpl service = new GameServiceImpl(gameRepository, espnService,
+            new TransactionTemplate(mock(PlatformTransactionManager.class)));
 
     @Test
     void noLiveGamesMakesNoEspnCalls() {
@@ -80,6 +86,36 @@ class GameServiceImplTest {
         ArgumentCaptor<List<Game>> saved = ArgumentCaptor.forClass(List.class);
         verify(gameRepository).saveAll(saved.capture());
         assertThat(saved.getValue()).containsExactly(live, justFinished, scheduled, finalWithoutStats);
+    }
+
+    @Test
+    void staleScheduledGamesAreDeletedAfterTheirChildRows() {
+        when(espnService.fetchGamesForRange(eq(League.MLB), any(), any()))
+                .thenReturn(List.of(game(1, "STATUS_SCHEDULED", false)));
+        when(gameRepository.findStaleScheduledGameIds(eq(League.MLB), any(), any(), eq(List.of(1))))
+                .thenReturn(List.of(99));
+
+        service.refreshSchedulesDaily();
+
+        InOrder order = inOrder(gameRepository);
+        order.verify(gameRepository).deleteStatsByGameIds(List.of(99));
+        order.verify(gameRepository).deleteLeadersByGameIds(List.of(99));
+        order.verify(gameRepository).deleteScoringPlaysByGameIds(List.of(99));
+        order.verify(gameRepository).deletePlayersByGameIds(List.of(99));
+        order.verify(gameRepository).deleteOddsByGameIds(List.of(99));
+        order.verify(gameRepository).deleteGamesByIds(List.of(99));
+    }
+
+    @Test
+    void noStaleGamesDeletesNothing() {
+        when(espnService.fetchGamesForRange(eq(League.MLB), any(), any()))
+                .thenReturn(List.of(game(1, "STATUS_SCHEDULED", false)));
+        when(gameRepository.findStaleScheduledGameIds(any(), any(), any(), any())).thenReturn(List.of());
+
+        service.refreshSchedulesDaily();
+
+        verify(gameRepository, never()).deleteStatsByGameIds(anyList());
+        verify(gameRepository, never()).deleteGamesByIds(anyList());
     }
 
     private Game game(int id, String status, boolean finalGame) {
