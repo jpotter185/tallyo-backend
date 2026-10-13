@@ -69,7 +69,9 @@ public class Game {
     private String shortPeriod;
     private String channel;
     private String espnLink;
+    @Column(columnDefinition = "text")
     private String lastPlay;
+    @Column(columnDefinition = "text")
     private String currentDownAndDistance;
     private String down;
     private String ballLocation;
@@ -80,6 +82,7 @@ public class Game {
     private Integer strikes;
     private Integer outs;
     private int winner;
+    @Column(columnDefinition = "text")
     private String headline;
     private String gameStatus;
     private String homeWinPercentage;
