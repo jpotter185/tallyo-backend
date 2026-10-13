@@ -74,7 +74,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Tool allowlist: no general shell, no curl beyond localhost, push only to this run's branch.
-          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*),Bash(mkdir -p .claude-tmp),Bash(tail:*),Bash(head:*),Bash(grep:*),Bash(wc:*),Bash(ls:*)"
+          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(git push -q -u origin ${{ env.BRANCH }}),Bash(git push origin ${{ env.BRANCH }}),Bash(git push -q origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*),Bash(mkdir -p .claude-tmp),Bash(tail:*),Bash(head:*),Bash(grep:*),Bash(wc:*),Bash(ls:*)"
           prompt: |
             You are fixing GitHub issue #${{ github.event.issue.number }} in ${{ github.repository }}, filed by the
             jack-server watchdog from production logs. You are already on branch ${{ env.BRANCH }}.
@@ -101,7 +101,7 @@ jobs:
                confirm the issue's error does not appear in the app log, and reproduce the original failure if practical.
                `psql -h localhost -U tallyo postgres` is available for schema checks.
             5. Commit with a clear message ending in "Fixes #${{ github.event.issue.number }}", then
-               `git push -u origin ${{ env.BRANCH }}`.
+               `git push -u origin ${{ env.BRANCH }}` (exactly this form, or with -q; pushes to any other branch are denied).
             6. Open a PR: `gh pr create --base main --head ${{ env.BRANCH }} --title "Fix #${{ github.event.issue.number }}: <summary>" --body-file <file>`.
                The body must contain: "Fixes #${{ github.event.issue.number }}" (so merging the PR closes the issue);
                root cause; the change; risk (low/medium/high) and why;
