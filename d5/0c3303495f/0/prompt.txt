@@ -1,0 +1,5 @@
+Hi. Checkout the latest commit to this project
+
+---
+
+I want it to auto-close the issue when the pr gets merged
