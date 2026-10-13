@@ -37,6 +37,27 @@ services:
     networks:
       - app-network
 
+  # One-shot Liquibase run, started by deploy.sh before the app (see db/README.md). The profile keeps a plain
+  # `docker compose up` from starting it.
+  migrate:
+    image: liquibase/liquibase:4.33.0  # bundles the Postgres JDBC driver; check that before bumping
+    profiles: [migrate]
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      LIQUIBASE_COMMAND_USERNAME: ${DB_USER}
+      LIQUIBASE_COMMAND_PASSWORD: ${DB_PASSWORD}
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
+      LIQUIBASE_SEARCH_PATH: /liquibase/changelog
+      LIQUIBASE_ANALYTICS_ENABLED: "false"
+    volumes:
+      - ./db:/liquibase/changelog:ro
+    command: update
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
   dozzle:
     image: amir20/dozzle:latest
     container_name: myapp-dozzle

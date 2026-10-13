@@ -23,7 +23,13 @@ pg_ctl -D "$SCRATCH/pgdata" -l "$SCRATCH/pgdata/pg.log" -o "-p 5432 -c unix_sock
 ```
 
 Hibernate `ddl-auto: update` creates the schema on boot; `LeagueConstraintSync`
-refreshes the league check constraints.
+refreshes the league check constraints. Changes Hibernate won't make live in
+`db/migrations/` (Liquibase, applied by `deploy.sh` in prod). To test one on the
+Mac, apply it with psql once the app has booted (the files are plain SQL):
+
+```bash
+for f in db/migrations/*.sql; do psql -h localhost -U tallyo postgres -v ON_ERROR_STOP=1 -f "$f"; done
+```
 
 ## Launch
 

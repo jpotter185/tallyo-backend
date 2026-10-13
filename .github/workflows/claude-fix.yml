@@ -79,9 +79,13 @@ jobs:
                are not allowed to make (below), do not guess: comment your findings on the issue with
                `gh issue comment ${{ github.event.issue.number }} --body-file <file>` and stop.
             3. Make the smallest correct fix and add or adjust a unit test. Run `./mvnw test` until it passes.
+               If the fix needs a schema change Hibernate won't make (`ddl-auto: update` never widens, retypes, renames or
+               drops existing columns), add a new Liquibase file in db/migrations/ following db/README.md. Deploys apply
+               it automatically, and `verify-app.sh start` applies it in this run.
             4. Verify end to end, following the `verify` skill's Launch/Drive steps. Postgres 15 is already running on
                localhost:5432 (user tallyo, trust auth), so skip its database setup. Start the app with
-               `./.github/scripts/verify-app.sh start` (it waits for the startup refresh), inspect with
+               `./.github/scripts/verify-app.sh start` (it waits for the startup refresh, then applies db/migrations and
+               fails if a migration fails), inspect with
                `./.github/scripts/verify-app.sh logs`, and stop it with `./.github/scripts/verify-app.sh stop`. Exercise the
                endpoints and code paths your fix touches with curl. The allowlist only matches this shape: the URL right
                after `curl -s` (or `curl -s -X POST`), single-quoted if it has a query string, the header last, no pipes:
@@ -93,13 +97,13 @@ jobs:
             6. Open a PR: `gh pr create --base main --head ${{ env.BRANCH }} --title "Fix #${{ github.event.issue.number }}: <summary>" --body-file <file>`.
                The body must contain: "Fixes #${{ github.event.issue.number }}" (so merging the PR closes the issue);
                root cause; the change; risk (low/medium/high) and why;
-               `./mvnw test` results; the verify steps you ran with their curl output (trimmed); and any MANUAL PROD STEPS
-               the deploy will not do. Note that `ddl-auto: update` never widens or retypes existing columns, so schema
-               changes need an explicit SQL statement listed there.
+               `./mvnw test` results; the verify steps you ran with their curl output (trimmed); any migration you added
+               and its `verify-app.sh start` output; and any MANUAL PROD STEPS the deploy will not do (schema changes
+               belong in a migration, not here).
 
-            Rules: do not modify anything under .github/, deploy.sh, docker-compose.yml, dockerfile, pom.xml, .env files
-            or SecurityConfig. Do not push to any branch other than ${{ env.BRANCH }}. Never print environment variables
-            or tokens. Keep openapi.yaml in sync if API behavior changes.
+            Rules: do not modify anything under .github/, deploy.sh, docker-compose.yml, dockerfile, pom.xml, .env files,
+            SecurityConfig, db/changelog.yaml or existing files in db/migrations/ (add new ones only). Do not push to any
+            branch other than ${{ env.BRANCH }}. Never print environment variables or tokens. Keep openapi.yaml in sync if API behavior changes.
 
       - name: Stop the app
         if: always()
