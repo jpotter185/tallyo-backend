@@ -66,7 +66,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Tool allowlist: no general shell, no curl beyond localhost, push only to this run's branch.
-          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*)"
+          claude_args: --max-turns 80 --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,LS,Skill,TodoWrite,Bash(./mvnw:*),Bash(./.github/scripts/verify-app.sh:*),Bash(curl -s localhost:*),Bash(curl -s -X POST localhost:*),Bash(curl -s 'localhost:*),Bash(curl -s -X POST 'localhost:*),Bash(psql -h localhost -U tallyo:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push -u origin ${{ env.BRANCH }}),Bash(gh issue view ${{ github.event.issue.number }}:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh pr create:*)"
           prompt: |
             You are fixing GitHub issue #${{ github.event.issue.number }} in ${{ github.repository }}, filed by the
             jack-server watchdog from production logs. You are already on branch ${{ env.BRANCH }}.
@@ -83,7 +83,9 @@ jobs:
                localhost:5432 (user tallyo, trust auth), so skip its database setup. Start the app with
                `./.github/scripts/verify-app.sh start` (it waits for the startup refresh), inspect with
                `./.github/scripts/verify-app.sh logs`, and stop it with `./.github/scripts/verify-app.sh stop`. Exercise the
-               endpoints and code paths your fix touches with `curl -s localhost:8080/...` (header x-api-key: verify-key),
+               endpoints and code paths your fix touches with curl. The allowlist only matches this shape: the URL right
+               after `curl -s` (or `curl -s -X POST`), single-quoted if it has a query string, the header last, no pipes:
+               `curl -s 'localhost:8080/api/v1/games/current?league=nfl' -H 'x-api-key: verify-key'`. Then
                confirm the issue's error does not appear in the app log, and reproduce the original failure if practical.
                `psql -h localhost -U tallyo postgres` is available for schema checks.
             5. Commit with a clear message ending in "Fixes #${{ github.event.issue.number }}", then
