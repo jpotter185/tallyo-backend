@@ -86,11 +86,11 @@ jobs:
                endpoints and code paths your fix touches with `curl -s localhost:8080/...` (header x-api-key: verify-key),
                confirm the issue's error does not appear in the app log, and reproduce the original failure if practical.
                `psql -h localhost -U tallyo postgres` is available for schema checks.
-            5. Commit with a clear message ending in "Refs #${{ github.event.issue.number }}", then
+            5. Commit with a clear message ending in "Fixes #${{ github.event.issue.number }}", then
                `git push -u origin ${{ env.BRANCH }}`.
             6. Open a PR: `gh pr create --base main --head ${{ env.BRANCH }} --title "Fix #${{ github.event.issue.number }}: <summary>" --body-file <file>`.
-               The body must contain: "Refs #${{ github.event.issue.number }}" (never "Fixes" or "Closes": the server agent
-               closes the issue after confirming in production); root cause; the change; risk (low/medium/high) and why;
+               The body must contain: "Fixes #${{ github.event.issue.number }}" (so merging the PR closes the issue);
+               root cause; the change; risk (low/medium/high) and why;
                `./mvnw test` results; the verify steps you ran with their curl output (trimmed); and any MANUAL PROD STEPS
                the deploy will not do. Note that `ddl-auto: update` never widens or retypes existing columns, so schema
                changes need an explicit SQL statement listed there.
