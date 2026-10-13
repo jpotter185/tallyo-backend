@@ -10,6 +10,7 @@ import com.tallyo.tallyo_backend.entity.Game;
 import com.tallyo.tallyo_backend.entity.GamePlayer;
 import com.tallyo.tallyo_backend.entity.ScoringPlay;
 import com.tallyo.tallyo_backend.enums.League;
+import com.tallyo.tallyo_backend.exception.InvalidRequestException;
 import com.tallyo.tallyo_backend.exception.ResourceNotFoundException;
 import com.tallyo.tallyo_backend.repository.GameRepository;
 import org.slf4j.Logger;
@@ -88,6 +89,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public List<Game> updateGames(League league, int year, boolean shouldFetchStats) {
+        if (league.isRetired()) {
+            throw new InvalidRequestException("League " + league.getId() + " is retired and no longer updated");
+        }
         List<Game> games = espnService.fetchGames(league, year, shouldFetchStats);
         gameRepository.saveAll(games);
         return games;
@@ -190,6 +194,7 @@ public class GameServiceImpl implements GameService {
         try {
             leagues = gameRepository.findLeaguesNeedingUpdate().stream()
                     .map(League::valueOf)
+                    .filter(league -> !league.isRetired())
                     .toList();
         } catch (Exception e) {
             logger.error("Could not check for live games: {}", e.getMessage());
@@ -265,7 +270,7 @@ public class GameServiceImpl implements GameService {
         LocalDate start = LocalDate.now().minusDays(SCHEDULE_LOOKBACK_DAYS);
         LocalDate end = LocalDate.of(LocalDate.now().getYear(), 12, 31);
         logger.info("Refreshing schedules for all leagues from {} to {}", start, end);
-        for (League league : League.values()) {
+        for (League league : League.active()) {
             try {
                 List<Game> games = espnService.fetchGamesForRange(league, start, end);
                 int saved = saveScheduleGames(games);

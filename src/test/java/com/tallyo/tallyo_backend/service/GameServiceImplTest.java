@@ -55,6 +55,25 @@ class GameServiceImplTest {
     }
 
     @Test
+    void retiredLeagueIsNeverPolled() {
+        when(gameRepository.findLeaguesNeedingUpdate()).thenReturn(List.of("WORLD_CUP"));
+
+        service.updateGamesForToday();
+
+        verifyNoInteractions(espnService);
+    }
+
+    @Test
+    void retiredLeagueIsHiddenButStillStorable() {
+        assertThat(League.active()).doesNotContain(League.WORLD_CUP).contains(League.NFL, League.MLB);
+        assertThat(League.valueOf("WORLD_CUP").isRetired()).isTrue();
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.tallyo.tallyo_backend.exception.InvalidRequestException.class,
+                () -> service.updateGames(League.WORLD_CUP, 2026, false));
+        verifyNoInteractions(espnService);
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     void summariesOnlyFetchedForLiveOrNewlyFinalGames() {
         Game live = game(1, "STATUS_IN_PROGRESS", false);
