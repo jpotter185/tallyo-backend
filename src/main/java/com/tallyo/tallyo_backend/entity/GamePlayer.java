@@ -32,6 +32,8 @@ public class GamePlayer {
     private Integer displayOrder;
     // Pipe-joined column labels/values exactly as ESPN sends them (game stats for
     // live/final games, season stats for scheduled lineups); values never contain pipes.
+    @Column(columnDefinition = "text")
     private String statLabels;
+    @Column(columnDefinition = "text")
     private String statValues;
 }

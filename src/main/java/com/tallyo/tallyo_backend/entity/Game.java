@@ -60,14 +60,18 @@ public class Game {
     private int week;
     private int seasonType;
     private int year;
+    @Column(columnDefinition = "text")
     private String stadiumName;
+    @Column(columnDefinition = "text")
     private String location;
     private Instant isoDate;
     private String homeScore;
     private String awayScore;
     private String period;
     private String shortPeriod;
+    @Column(columnDefinition = "text")
     private String channel;
+    @Column(columnDefinition = "text")
     private String espnLink;
     @Column(columnDefinition = "text")
     private String lastPlay;

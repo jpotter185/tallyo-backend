@@ -23,7 +23,7 @@ public class GameStat {
     @JsonBackReference
     private Game game;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String statValue;
 
 }
