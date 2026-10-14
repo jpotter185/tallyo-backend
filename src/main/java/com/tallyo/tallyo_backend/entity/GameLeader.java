@@ -25,6 +25,7 @@ public class GameLeader {
 
     private String displayName;
     private Double statValue;
+    @Column(columnDefinition = "text")
     private String displayValue;
     private String playerName;
     private String playerShortName;

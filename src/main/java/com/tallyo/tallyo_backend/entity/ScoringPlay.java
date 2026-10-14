@@ -25,7 +25,7 @@ public class ScoringPlay {
 
     private String teamId;
     private String teamAbbreviation;
-    @Column(length = 1024)
+    @Column(columnDefinition = "text")
     private String displayText;
     private Integer homeScore;
     private Integer awayScore;
