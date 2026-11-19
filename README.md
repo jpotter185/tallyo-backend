@@ -15,7 +15,7 @@ Spring Boot backend for the Tallyo sports dashboard. The service ingests ESPN sc
 
 ## Tech Stack
 
-- Java 17
+- Java 17 (compile target; the production image runs on Java 25 LTS)
 - Spring Boot 4
 - Spring Web MVC
 - Spring Data JPA
@@ -42,7 +42,7 @@ src/main/java/com/tallyo/tallyo_backend
 
 ## Requirements
 
-- Java 17
+- Java 17 or newer
 - Docker and Docker Compose, if running with PostgreSQL locally
 - PostgreSQL, if running without Docker
 

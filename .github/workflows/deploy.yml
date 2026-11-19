@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    # Docs-only changes don't need a redeploy
+    paths-ignore:
+      - "**.md"
 
 jobs:
   deploy:

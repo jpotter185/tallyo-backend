@@ -20,6 +20,13 @@ Required env vars for local run: `API_KEY`, `SPRING_DATASOURCE_USERNAME` (passwo
 
 Runs on `http://localhost:8080`. Every API request needs header `x-api-key: <API_KEY>`.
 
+## Dependency updates
+
+Dependabot (`.github/dependabot.yml`) opens weekly grouped PRs for Maven, the `dockerfile` base image, compose images and GitHub Actions. Majors it deliberately ignores, to bump by hand:
+- **`eclipse-temurin`**: stay on LTS releases (now `25-jre`; next is 29). The jar still targets Java 17.
+- **`liquibase/liquibase`**: stay on 4.x. 5.0's image ships without JDBC drivers, so the `migrate` service would lose the Postgres driver (it would need `lpm add postgresql` in a custom image).
+- **`postgres`**: a major needs a dump/restore, not a tag change.
+
 ## Architecture
 
 Package root: `com.tallyo.tallyo_backend`. Flow for a request: `controller` → `service` (business logic, calls `EspnService` for live data or `GameRepository` for stored data) → `mapper` converts between ESPN `model` objects, JPA `entity` objects, and response `dto` objects.
