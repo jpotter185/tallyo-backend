@@ -40,7 +40,7 @@ services:
   # One-shot Liquibase run, started by deploy.sh before the app (see db/README.md). The profile keeps a plain
   # `docker compose up` from starting it.
   migrate:
-    image: liquibase/liquibase:4.33.0  # bundles the Postgres JDBC driver; check that before bumping
+    image: liquibase/liquibase:5.0.4  # bundles the Postgres JDBC driver; check that before bumping
     profiles: [migrate]
     environment:
       LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
