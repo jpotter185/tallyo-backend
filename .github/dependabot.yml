@@ -13,6 +13,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # Only run on Java LTS releases (25, 29, ...); bump the major by hand
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker-compose"
     directory: "/"
@@ -22,7 +26,10 @@ updates:
       # Postgres major upgrades need a dump/restore or pg_upgrade; bump by hand
       - dependency-name: "postgres"
         update-types: ["version-update:semver-major"]
-      # Liquibase bundles the Postgres JDBC driver; review its PRs against the driver version
+      # Liquibase 5 ships without JDBC drivers (and changed license); the migrate step needs
+      # the Postgres driver, so stay on 4.x until that's handled
+      - dependency-name: "liquibase/liquibase"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

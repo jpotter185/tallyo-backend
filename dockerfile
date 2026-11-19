@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jre
+FROM --platform=$BUILDPLATFORM eclipse-temurin:25-jre
 
 WORKDIR /app
 COPY target/*.jar app.jar
